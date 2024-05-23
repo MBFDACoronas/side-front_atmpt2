@@ -12,16 +12,34 @@ export class AppMenuComponent implements OnInit {
     ngOnInit() {
         this.model = [
             {
-                label: 'Dashboards',
-                icon: 'pi pi-home',
+                label: 'Esileht', icon: 'pi pi-home',
                 items: [
                     {
-                        label: 'E-Commerce',
+                        label: 'Pealeht',
                         icon: 'pi pi-fw pi-home',
-                        routerLink: ['/']
+                        routerLink: ['/start-add']
                     }
-                ]
+                ],
+                routerLink: ['/dashboard'],
             },
+            {
+                label: 'lisamine', icon: 'pi pi-home', routerLink: ['/start-add'],
+            },
+
+            // {
+            //     label: 'Dashboards',
+            //     icon: 'pi pi-home',
+            //     items: [
+            //         {
+            //             label: 'E-Commerce',
+            //             icon: 'pi pi-fw pi-home',
+            //             routerLink: ['/']
+            //         }
+            //     ]
+            // },
+            {  label: 'demo',
+                icon: 'pi pi-home',
+                items: [
             {
                 label: 'Apps',
                 icon: 'pi pi-th-large',
@@ -158,7 +176,12 @@ export class AppMenuComponent implements OnInit {
                         label: 'Menu',
                         icon: 'pi pi-fw pi-bars',
                         routerLink: ['/uikit/menu'],
-                        routerLinkActiveOptions: { paths: 'subset', queryParams: 'ignored', matrixParams: 'ignored', fragment: 'ignored' }
+                        routerLinkActiveOptions: {
+                            paths: 'subset',
+                            queryParams: 'ignored',
+                            matrixParams: 'ignored',
+                            fragment: 'ignored'
+                        }
                     },
                     {
                         label: 'Message',
@@ -472,6 +495,7 @@ export class AppMenuComponent implements OnInit {
                     }
                 ]
             }
-        ];
+   ] }
+            ];
     }
 }

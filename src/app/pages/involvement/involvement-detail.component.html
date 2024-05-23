@@ -1,0 +1,184 @@
+<div class="card">
+
+<div class="col-6">
+    <div class="card">
+        <h5>Info</h5>
+        <div class="p-fluid p-formgrid grid">
+            <div class="field col-12 md:col-6">
+                <label htmlFor="groupName">Osapoole nimetus</label>
+                <input [(ngModel)]="involvementGroupModel.name" pInputText id="groupName" type="text" />
+            </div>
+        </div>
+    </div>
+</div>
+<div class="col-12">
+    <div class="card">
+        <h5>Kasutajad</h5>
+        <div class="p-fluid p-formgrid grid">
+            <div class="field col-12 md:col-8">
+                <label htmlFor="userEmail">E-post</label>
+                <input pInputText [(ngModel)]="newUser.email" id="userEmail" type="text" />
+            </div>
+
+
+
+
+
+            <div class="field col-12 md:col-2">
+                    <label htmlFor="state">role</label>
+                    <p-dropdown [options]="roleSelection" optionLabel="name" [(ngModel)]="selectedRole"></p-dropdown>
+            </div>
+            <div class="field col-12 md:col-2">
+                <label htmlFor="state">&#8203; </label>
+
+                <button pButton pRipple label="Lisa kasutaja" (click)="addUser()" class="mr-2 mb-2"></button>
+            </div>
+
+            <ng-container *ngFor="let user of users; let i = index">
+<!--                <div class="col-12">-->
+<!--                    <input type="text" name="" id="">-->
+<!--                    <label htmlFor="userEmail">{{user.email}}</label> <br>-->
+<!--                </div>-->
+
+
+                <div class="field col-2 md:col-2">
+                    <label *ngIf="i===0" htmlFor="state">E-post</label>
+
+                    <input type="text" pInputText [(ngModel)]="user.email"/>
+                </div>
+
+
+                    <div class="field col-2 md:col-2">
+                        <label *ngIf="i===0" htmlFor="state">Joonised</label>
+                        <p-dropdown [options]="rightsList"
+                                    optionLabel="name"
+                                    optionValue="id"
+                                    placeholder="Vali"
+                                    (ngModelChange)="change($event)" [(ngModel)]="user.id"
+
+                        >
+                        </p-dropdown>
+                    </div>
+
+                    <div class="field col-2 md:col-2">
+                        <label *ngIf="i===0" htmlFor="state">Dokumendid</label>
+                        <p-dropdown [options]="rightsList"
+                                    optionLabel="name"
+                                    optionValue="id"
+                                    placeholder="Vali"
+                                    (ngModelChange)="change($event)" [(ngModel)]="user.id"
+
+                        >
+                        </p-dropdown>
+                    </div>
+
+                    <div class="field col-2 md:col-2">
+                        <label *ngIf="i===0" htmlFor="state">Aktid</label>
+                        <p-dropdown [options]="rightsList"
+                                    optionLabel="name"
+                                    optionValue="id"
+                                    placeholder="Vali"
+                                    (ngModelChange)="change($event)" [(ngModel)]="user.id"
+
+                        >
+                        </p-dropdown>
+                    </div>
+
+                    <div class="field col-2 md:col-2">
+                        <label *ngIf="i===0" htmlFor="state">Lepingud</label>
+                        <p-dropdown [options]="rightsList"
+                                    optionLabel="name"
+                                    optionValue="id"
+                                    placeholder="Vali"
+                                    (ngModelChange)="change($event)" [(ngModel)]="user.id"
+
+                        >
+                        </p-dropdown>
+                    </div>
+
+                    <div class="field col-2 md:col-2">
+                        <label *ngIf="i===0" htmlFor="state">Töölaud</label>
+                        <p-dropdown [options]="rightsList"
+                                    optionLabel="name"
+                                    optionValue="id"
+                                    placeholder="Vali"
+                                    (ngModelChange)="change($event)" [(ngModel)]="user.id"
+
+                        >
+                        </p-dropdown>
+                    </div>
+
+
+
+            </ng-container>
+        </div>
+    </div>
+</div>
+
+<div class="col-2">
+    <div class="card">
+        <h5>Ligipääsud</h5>
+        <div class="p-fluid p-formgrid grid">
+            <div class="field col-12 md:col-12">
+                <label>Joonised</label>
+                <button pButton pRipple (click)="openDialogue1(1)" label="Valik" class="mr-2 mb-2"></button>
+
+            </div>
+        </div>
+        <div class="p-fluid p-formgrid grid">
+            <div class="field col-12 md:col-12">
+                <label>Dokumendid</label>
+                <button pButton pRipple label="Valik" class="mr-2 mb-2"></button>
+
+            </div>
+        </div>
+        <div class="p-fluid p-formgrid grid">
+            <div class="field col-12 md:col-12">
+                <label>Töölauad</label>
+                <button pButton pRipple label="Valik" class="mr-2 mb-2"></button>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+    <div class="col-12">
+        <div class="flex justify-content-between flex-column sm:flex-row">
+            <button pButton label="Clear" class="p-button-outlined mb-2" icon="pi pi-filter-slash" (click)="cancel()"></button>
+            <button *ngIf="insert" pButton label="Lisa osapool" class="p-button-outlined mb-2" icon="pi pi-plus" (click)="save()"></button>
+            <button *ngIf="!insert" pButton label="Salvesta" class="p-button-outlined mb-2" icon="pi pi-plus" (click)="save2()"></button>
+        </div>
+
+    </div>
+<p-dialog [(visible)]="dialogVisible" [style]="{width: '1000px'}" header="{{dialogueHeader}}"
+          [modal]="true"
+          class="p-fluid" (submit)="saveRights()">
+    <ng-template pTemplate="content">
+
+        <div class="grid">
+            <div class="col-12">
+                <div class="card">
+                    <h5>Vali kaust</h5>
+
+                    <div class="col-12">
+
+
+                        <p-tree [loading]="loading" [value]="drawingFoldersList" selectionMode="checkbox" [(selection)]="selectedDrawingFolders"
+                                (onNodeSelect)="nodeSelect($event)" (onNodeUnselect)="nodeUnselect($event)"></p-tree>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </ng-template>
+
+    <ng-template pTemplate="footer">
+        <button pButton pRipple label="Tühista" class="p-button-text"
+                (click)="closeDialogue()"></button>
+        <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text"
+                (click)="saveRights()"></button>
+    </ng-template>
+</p-dialog>
+</div>

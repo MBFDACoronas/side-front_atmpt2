@@ -1,0 +1,192 @@
+<div class="grid">
+<!-- TODO võtta kasutusele menubar-->
+    <div class="col-12">
+        <div class="card">
+            <h5>Joonised</h5>
+            <p-treeTable #treeTable *ngIf="visible" [value]="files2" [columns]="cols" selectionMode="single"
+                         [(selection)]="selectedFiles2">
+                <ng-template pTemplate="caption">
+                    <div class="flex flex-column sm:flex-row">
+                        <button pButton label="Üleslaadimine" class="p-button-outlined mb-2" icon="pi"
+                                (click)="openAddFileModal(null)"></button>
+                        <button pButton label="Uus kaust" class="p-button-outlined mb-2" icon="pi"
+                                (click)="openAddFolderModal(null)"></button>
+
+                        <button pButton label="Laadi alla" class="p-button-outlined mb-2" icon="pi"
+                                (click)="openAddFolderModal(null)"></button>
+
+                        <button pButton label="Allkirjasta" class="p-button-outlined mb-2" icon="pi"
+                                (click)="openAddFolderModal(null)"></button>
+
+                        <button pButton label="Jaga" class="p-button-outlined mb-2" icon="pi"
+                                (click)="openAddFolderModal(null)"></button>
+
+                        <button pButton label="Teiselda" class="p-button-outlined mb-2" icon="pi"
+                                (click)="openAddFolderModal(null)"></button>
+
+                        <button pButton label="Kopeeri" class="p-button-outlined mb-2" icon="pi"
+                                (click)="openAddFolderModal(null)"></button>
+
+                        <button pButton label="Kopeeri" class="p-button-outlined mb-2" icon="pi"
+                                (click)="openAddFolderModal(null)"></button>
+
+                        <!--                        <span class="p-input-icon-left mb-2">-->
+                        <!--							<i class="pi pi-search"></i>-->
+                        <!--						</span>-->
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="header" let-columns>
+                    <tr>
+                        <th *ngFor="let col of columns">
+                            {{col.header}}
+                        </th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-rowNode let-rowData="rowData" let-columns="columns">
+                    <tr [ttRow]="rowNode">
+                        <td *ngFor="let col of columns; let i = index" ttEditableColumn
+                            [ngClass]="{'p-toggler-column': i === 0}"
+                            [ttEditableColumn]="rowData" [ttEditableColumnField]="col.field">
+
+
+                            <ng-container *ngIf="i!=3">
+                                <i *ngIf="i===0 && rowData.type==='FOLDER'" class="pi pi-folder-open"></i>
+                                <i *ngIf="i===0 && rowData.type==='FILE'" class="pi pi-file"></i>
+
+                                <p-treeTableToggler [rowNode]="rowNode" *ngIf="i == 0"></p-treeTableToggler>
+
+
+                                <p-treeTableCheckbox [value]="rowNode" *ngIf="i == 0"></p-treeTableCheckbox>
+
+
+                                {{rowData[col.field]}}
+
+                            </ng-container>
+
+                            <ng-container *ngIf="i==3">
+
+
+<!--                                <button pButton pRipple type="button" label="Lisa fail"-->
+<!--                                        class="p-button-rounded mr-2 mb-2"-->
+<!--                                        (click)="fileUploadDialogVisible=true; selectedFolderId=rowData.id"></button>-->
+
+
+                                <ng-container *ngIf="rowData.type==='FOLDER'">
+                                <button pButton pRipple type="button" icon="pi pi-file" class="p-button-rounded p-button-secondary mr-2 mb-2" title="Lisa fail" label="+"
+                                        (click)="fileUploadDialogVisible=true; selectedFolderId=rowData.id"
+                                ></button>
+
+                                <button pButton pRipple type="button" icon="pi pi-folder" class="p-button-rounded p-button-secondary mr-2 mb-2" title="Lisa Kaust" label="+"
+                                        (click)="openAddFolderModal(rowData.id)"
+                                ></button>
+
+                                </ng-container>
+
+                                <button pButton pRipple type="button" icon="pi pi-trash" class="p-button-rounded p-button-secondary mr-2 mb-2" title="Kustuta"
+                                        (click)="confirm1(rowData.id, rowData.type)"
+                                ></button>
+
+                                <ng-container *ngIf="rowData.type==='FILE'">
+                                    <button pButton pRipple type="button" icon="pi pi-download" class="p-button-rounded p-button-secondary mr-2 mb-2" title="Laadi alla"
+                                            (click)="downloadFile(rowData.id, rowData.name)"
+                                    ></button>
+                                    </ng-container>
+
+
+<!--                                <button pButton pRipple type="button" label="Lisa Kataloog"-->
+<!--                                        (click)="openAddFolderModal(rowData.id)"-->
+<!--                                        class="p-button-rounded mr-2 mb-2"></button>-->
+
+
+<!--                                <button type="text" (click)="confirm1(rowData.id)" pButton icon="pi pi-trash"-->
+<!--                                        label="Delete" class="p-button-danger  mr-2 mb-2" style="width:auto;"></button>-->
+
+                            </ng-container>
+
+
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-treeTable>
+        </div>
+    </div>
+    <p-dialog [(visible)]="dialogVisible" [style]="{width: '450px'}" header="Uue kausta lisamine" [modal]="true"
+              class="p-fluid" (submit)="saveFolder()">
+        <ng-template pTemplate="content">
+            <div class="field">
+                <label for="name">Kausta nimi</label>
+                <input type="text" pInputText id="name" [(ngModel)]="drawingsFolder.path" required autofocus
+                       [ngClass]="{'ng-invalid ng-dirty' : submitted && !drawingsFolder.path}"/>
+                <small class="ng-dirty ng-invalid" *ngIf="submitted && !drawingsFolder.path">Name is required.</small>
+            </div>
+        </ng-template>
+
+        <ng-template pTemplate="footer">
+            <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text"
+                    (click)="hideFolderDialog()"></button>
+            <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text"
+                    (click)="saveFolder()"></button>
+        </ng-template>
+    </p-dialog>
+    <!--    <p-confirmDialog header="Confirmation" key="confirm1" icon="pi pi-exclamation-triangle"-->
+    <!--                     message="Are you sure you want to proceed?"-->
+    <!--                     [style]="{width: '350px'}" acceptButtonStyleClass="p-button-text"-->
+    <!--                     rejectButtonStyleClass="p-button-text"></p-confirmDialog>-->
+
+</div>
+<p-confirmDialog></p-confirmDialog>
+
+<p-dialog [(visible)]="fileUploadDialogVisible" [style]="{width: '1000px'}" header="Failide üleslaadimine"
+          [modal]="true"
+          class="p-fluid" (submit)="saveFolder()">
+    <ng-template pTemplate="content">
+
+        <div class="grid">
+            <div class="col-12">
+                <div class="card">
+                    <h5>Advanced</h5>
+                    <p-fileUpload name="demo[]" (onUpload)="onUpload($event)" (onSelect)="onUpload($event)"
+                                  multiple="multiple" maxFileSize="1000000000">
+                        <ng-template pTemplate="content">
+                            <ul *ngIf="uploadedFiles.length">
+                                <li *ngFor="let file of uploadedFiles">{{file.name}} - {{file.size}} bytes</li>
+                            </ul>
+                        </ng-template>
+                    </p-fileUpload>
+
+                </div>
+            </div>
+        </div>
+
+
+    </ng-template>
+
+    <ng-template pTemplate="footer">
+        <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text"
+                (click)="hideFileUploadDialog()"></button>
+        <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text"
+                (click)="saveFile()"></button>
+    </ng-template>
+</p-dialog>
+
+<!--<p-dialog [(visible)]="deleteProductDialog" header="Confirm" [modal]="true" [style]="{width:'450px'}">-->
+<!--    <div class="flex align-items-center justify-content-center">-->
+<!--        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>-->
+<!--        <span *ngIf="product">Are you sure you want to delete <b>{{product.name}}</b>?</span>-->
+<!--    </div>-->
+<!--    <ng-template pTemplate="footer">-->
+<!--        <button pButton pRipple icon="pi pi-times" class="p-button-text" label="No" (click)="deleteProductDialog = false"></button>-->
+<!--        <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Yes" (click)="confirmDelete()"></button>-->
+<!--    </ng-template>-->
+<!--</p-dialog>-->
+
+<!--<p-dialog [(visible)]="deleteProductsDialog" header="Confirm" [modal]="true" [style]="{width:'450px'}">-->
+<!--    <div class="flex align-items-center justify-content-center">-->
+<!--        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>-->
+<!--        <span>Are you sure you want to delete selected products?</span>-->
+<!--    </div>-->
+<!--    <ng-template pTemplate="footer">-->
+<!--        <button pButton pRipple icon="pi pi-times" class="p-button-text" label="No" (click)="deleteProductsDialog = false"></button>-->
+<!--        <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Yes" (click)="confirmDeleteSelected()"></button>-->
+<!--    </ng-template>-->
+<!--</p-dialog>-->
