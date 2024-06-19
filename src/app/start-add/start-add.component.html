@@ -1,1 +1,74 @@
-<p>start-add works!</p>
+<div class="card">
+    <span class="text-900 text-xl font-bold mb-4 block">Lisamine</span>
+    <div class="grid">
+        <div class="col-12 lg:col-2">
+            <div class="text-900 font-medium text-xl mb-3">Pealkiri placeholder</div>
+            <p class="m-0 p-0 text-600 line-height-3 mr-3">Info placeholder</p>
+        </div>
+        <div class="col-12 lg:col-10">
+            <div class="grid formgrid p-fluid">
+                <div class="field mb-4 col-12">
+                    <label for="camera" class="font-medium text-900">Camera and Upload</label>
+                    <div class="button-container">
+                        <div class="trigger" (click)="openCameraDialog()">
+                            <i class="pi pi-camera"></i>
+                            <span>Tee pilt</span>
+                        </div>
+                        <div class="trigger" (click)="fileInput.click()">
+                            <i class="pi pi-upload"></i>
+                            <span>Vali fail</span>
+                            <input type="file" #fileInput (change)="onFileSelected($event)" hidden>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="field mb-4 col-12" *ngIf="images.length > 0">
+                    <label for="uploadedFiles" class="font-medium text-900">Uploaded Files</label>
+                    <div class="uploaded-files">
+                        <div class="file-item" *ngFor="let image of images">
+                            <img [src]="image" alt="Extracted Image" class="uploaded-image" (click)="onImageClick(image)">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="field mb-4 col-12">
+                    <h5>Vastutav</h5>
+                    <p-autoComplete id="vastutav" [(ngModel)]="selectedVastutavad" [suggestions]="filteredVastutavad"
+                                    (completeMethod)="filteredVastutav($event)" field="name" [dropdown]="true">
+                    </p-autoComplete>
+                </div>
+                <div class="field mb-4 col-12">
+                    <h5>Teema</h5>
+                    <p-autoComplete id="teema" [(ngModel)]="selectedVastutavad" [suggestions]="filteredVastutavad"
+                                    (completeMethod)="filteredVastutav($event)" field="name" [dropdown]="true">
+                    </p-autoComplete>
+                </div>
+
+                <div class="field mb-4 col-12">
+                    <h5>Asukoht</h5>
+                    <p-autoComplete id="asukoht" [(ngModel)]="selectedVastutavad" [suggestions]="filteredVastutavad"
+                                    (completeMethod)="filteredVastutav($event)" field="name" [dropdown]="true">
+                    </p-autoComplete>
+                </div>
+
+                <div class="field mb-4 col-12">
+                    <h5>ATV</h5>
+                    <input id="atv" type="text" pInputText>
+                </div>
+
+                <div class="field mb-4 col-12">
+                    <h5>Kirjeldus</h5>
+                    <textarea rows="6" pInputTextarea placeholder="Your comment"></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<p-dialog #cameraDialog header="Capture Image" [(visible)]="displayCameraDialog" [modal]="true" [style]="{width: '80vw', height: '80vh'}" (onShow)="onDialogShow(cameraDialog)">
+    <app-camera-capture></app-camera-capture>
+</p-dialog>
+
+<p-dialog #imageDialog header="View Image" [(visible)]="displayImageDialog" [modal]="true" [style]="{width: dynamicWidth, height: dynamicHeight}" (onHide)="closeImageDialog()">
+    <app-image-dialog [imageUrl]="selectedImage" [type]="'DF'" (imageLoaded)="onImageLoaded($event)"></app-image-dialog>
+</p-dialog>

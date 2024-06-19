@@ -1,0 +1,39 @@
+<div class="card">
+
+
+    <h5>Projektid</h5>
+<!--    <div class="grid p-fluid mt-3">-->
+        <app-project></app-project>
+
+    <button
+            pButton
+            pRipple
+            class="p-button-secondary"
+            (click)="createAssignment()"
+            label="Lisa Ülesanne">
+
+    </button>
+
+<!--    </div>-->
+    <app-filtered-table
+        [fluid]="true"
+        [value]="projectList"
+        [loading]="loading"
+        [paginator]="true"
+        [columns]="selectedTableColumns"
+        (rowSelected)="openDialog($event.data)"
+        (rowEditInit)="rowEditInit($event)"
+        (rowDeleted)="delete($event)"
+        [selectionMode]="'single'"
+        [(selection)]="selectedRow"
+        [allowDeletion]="true"
+        editMode="rowDialog"
+    >
+        <ng-template #caption>
+            <div class="flex justify-content-end">
+                <button pButton pRipple label="New" icon="pi pi-plus" class="p-button-success mr-2" (click)="openDialog(null)"></button>
+            </div>
+        </ng-template>
+    </app-filtered-table>
+
+</div>

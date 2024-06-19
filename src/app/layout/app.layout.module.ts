@@ -50,7 +50,7 @@ import { CalendarModule } from 'primeng/calendar';
         AppConfigModule,
         StyleClassModule,
         CalendarModule,
-        
+
     ]
 })
 export class AppLayoutModule { }

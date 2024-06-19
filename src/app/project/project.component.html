@@ -1,0 +1,76 @@
+<div class="col-12">
+            <span class="p-float-label">
+                <p-dropdown inputId="dropdown"
+                            [autoDisplayFirst]="false"
+                            [options]="projectList"
+                            [(ngModel)]="project"
+                            optionLabel="projectName"></p-dropdown>
+                <label for="dropdown">Projekt</label>
+            </span>
+</div>
+
+
+<button (click)="dialogueVisible=true"
+        pButton
+        pRipple
+        class="p-button-secondary"
+        label="Lisa projekt"></button>
+<p-dialog [(visible)]="dialogueVisible"
+          (visibleChange)="onVisibleChange($event)"
+          s
+          [style]="{width: '800px'}"
+          [modal]="true"
+          [draggable]="false"
+          styleClass="p-fluid"
+>
+    <ng-template pTemplate="header">
+        <h2>Salvestamine</h2>
+    </ng-template>
+    <ng-template pTemplate="content">
+        <div class="formgrid grid">
+
+
+            <div class="field col-12">
+                <label for="projectName">TODO</label>
+                <input pInputText
+                       id="projectName"
+                       [(ngModel)]="project.projectName"
+                       type="text"
+                       [required]="true"
+                       name="projectName">
+            </div>
+            <div class="field-radiobutton col-12">
+                <label for="valid">TODO</label>
+                <p-checkbox id="valid"
+                            (click)="setActive(project.valid)"
+                            [value]="project.valid"
+                            [(ngModel)]="project.valid"
+                            [binary]="true"></p-checkbox>
+            </div>
+            1
+
+
+        </div>
+    </ng-template>
+    <ng-template pTemplate="footer">
+        <button
+            pButton
+            pRipple
+            label="Tühista"
+            icon="pi pi-times"
+            id="cancel-btn"
+            class="p-button p-button-danger"
+            (click)="dialogueVisible = false; this.selectedRow = null;"
+        ></button>
+        <button
+            pButton
+            pRipple
+            [label]="'Salvesta'"
+            id="save-btn"
+            icon="pi pi-check"
+            class="p-button p-button-success"
+            (click)="save()"
+        ></button>
+    </ng-template>
+</p-dialog>
+

@@ -1,0 +1,7 @@
+<div class="camera-capture">
+    <video #videoElement autoplay [hidden]="capturedImage || !initCapture"></video>
+    <canvas #canvasElement></canvas>
+    <button pButton type="button" label="Capture" (click)="capture()" [disabled]="cameraError || capturedImage">Capture</button>
+    <button pButton type="button" label="Retake" (click)="retake()" *ngIf="capturedImage">Retake</button>
+    <p *ngIf="cameraError" class="error-message">{{ cameraError }}</p>
+</div>

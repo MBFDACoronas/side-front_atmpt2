@@ -1,0 +1,43 @@
+<div class="card">
+    <p-table
+        #dt
+        [value]="value"
+        [loading]="loading"
+        [paginator]="paginator"
+        [rows]="10"
+        [rowHover]="true"
+        [selection]="selection"
+        [(selection)]="selection"
+        [selectionMode]="selectionMode"
+        (onRowSelect)="onRowSelect($event)"
+        (onRowEditInit)="onRowEditInit($event)"
+        (onRowDelete)="onRowDelete($event)"
+        [styleClass]="fluid ? 'p-datatable-gridlines' : ''"
+    >
+        <ng-template pTemplate="caption" *ngIf="caption">
+            <ng-container *ngTemplateOutlet="caption"></ng-container>
+        </ng-template>
+
+        <ng-template pTemplate="header">
+            <tr>
+                <th *ngFor="let col of columns" [style.width]="col.width">
+                    <div class="flex justify-content-between align-items-center">
+                        {{ col.name }}
+                    </div>
+                </th>
+            </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-rowData>
+            <tr [pSelectableRow]="rowData"> <!-- Add pSelectableRow directive here -->
+                <td *ngFor="let col of columns">{{ rowData[col.value] }}</td>
+            </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+            <tr>
+                <td [attr.colspan]="columns.length">No records found.</td>
+            </tr>
+        </ng-template>
+    </p-table>
+</div>
