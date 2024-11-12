@@ -25,15 +25,24 @@ export class ImageDialogComponent implements OnInit, OnChanges, AfterViewInit {
     private context: CanvasRenderingContext2D;
     private circles: { x: number, y: number, index: number }[] = [];
     @Input() drawingInteractions!: DrawingInteraction[];
-    ngOnInit(): void {}
+    ngOnInit(): void {
+        console.log("drawingInteractions", this.drawingInteractions);
+
+    }
 
     ngAfterViewInit(): void {
         this.initCanvas();
+        this.loadImage();
+        // Use a setTimeout to ensure the image is loaded before drawing circles
+        setTimeout(() => {
+            this.drawingInteractions.forEach(item => {
+                this.drawCircle(item.coordX, item.coordY, item.drawingIndex, false);
+            });
+        }, 100);
     }
-
     ngOnChanges(changes: SimpleChanges): void {
         if (changes['imageUrl']) {
-            console.log('imageUrl changed:', this.imageUrl);
+            // console.log('imageUrl changed:', this.imageUrl);
             if (this.imageUrl) {
                 this.loadImage();
             }
@@ -44,27 +53,32 @@ export class ImageDialogComponent implements OnInit, OnChanges, AfterViewInit {
         const canvas = this.imageCanvas.nativeElement;
         this.context = canvas.getContext('2d');
     }
+    @ViewChild('pdfEmbed', { static: true }) pdfEmbed: ElementRef;
 
     loadImage(): void {
         const canvas = this.imageCanvas.nativeElement;
         const image = new Image();
         image.src = this.imageUrl;
         image.onload = () => {
-            console.log('Image loaded:', image);
+            // console.log('Image loaded:', image);
             canvas.width = image.width;
             canvas.height = image.height;
             this.context.clearRect(0, 0, canvas.width, canvas.height);
             this.context.drawImage(image, 0, 0);
             this.loadCircles();
             this.imageLoaded.emit({ width: image.width + 50, height: image.height + 50 });
+
         };
         image.onerror = (error) => {
             console.error('Image failed to load:', error);
         };
     }
 
+
+
+
     loadCircles(): void {
-        this.circles.forEach(circle => this.drawCircle(circle.x, circle.y, circle.index));
+        // this.circles.forEach(circle => this.drawCircle(circle.x, circle.y, circle.index));
     }
 
     onCanvasClick(event: MouseEvent): void {
@@ -78,7 +92,7 @@ export class ImageDialogComponent implements OnInit, OnChanges, AfterViewInit {
     }
 
 
-    drawCircle(x: number, y: number, index: number): void {
+    drawCircle(x: number, y: number, index: number, addInteraction: boolean = true): void {
         const text = this.type + index.toString();
         this.context.font = '12px bold Arial';
         const textWidth = this.context.measureText(text).width;
@@ -106,21 +120,21 @@ export class ImageDialogComponent implements OnInit, OnChanges, AfterViewInit {
         this.context.fillStyle = 'black';
         this.context.textAlign = 'center';
         this.context.textBaseline = 'middle';
-        const drawingInteraction: DrawingInteraction = new class implements DrawingInteraction {
-            coordX: number;
-            coordY: number;
-            drawing: string;
-            drawingIndex: number;
-            drawingType: string;
-            id: string;
-        }
-        drawingInteraction.coordY = y;
-        drawingInteraction.coordX = x;
-        drawingInteraction.drawingIndex = index;
-        drawingInteraction.drawingType = this.type;
-        this.drawingInteractions.push(drawingInteraction)
-
         this.context.fillText(text, x, y);
+
+        // Only add a new DrawingInteraction if addInteraction is true
+        if (addInteraction) {
+            const drawingInteraction: DrawingInteraction = {
+                coordX: x,
+                coordY: y,
+                drawingIndex: index,
+                drawingType: this.type,
+                drawing: "0", // Assuming you have the drawing ID available
+                id: null, // Or generate a UUID if needed
+            };
+            this.drawingInteractions.push(drawingInteraction);
+        }
     }
+
 
 }

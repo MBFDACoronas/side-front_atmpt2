@@ -25,5 +25,7 @@ export class AssignmentService {
   fetchAssignmentById(id: string): Observable<Assignment>{
     return this.http.get<Assignment>(`/api/assignment/${id}`);
   }
-
+    getImage(drawingId: string): Observable<string> {
+        return this.http.get(`api/drawing/${drawingId}/image`, { responseType: 'text' });
+    }
 }

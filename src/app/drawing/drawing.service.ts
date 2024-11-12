@@ -15,12 +15,14 @@ export class DrawingService {
   }
 
   saveDrawing(drawing: Drawing): Observable<Drawing>{
-
+      console.log("saveDrawing", drawing);
       const formData: FormData = new FormData();
       formData.append('name', drawing.name);
+      formData.append('drawingId', drawing.id ||    '' );
       formData.append('assignmentId', drawing.assignment.id);
       if (drawing.imageFile) {
           formData.append('imageFile', drawing.imageFile);
+          formData.append('imageFileString', drawing.imageUrl);
       }
 
     return this.http.post<Drawing>("/api/drawing/save", formData);

@@ -4,6 +4,9 @@ import { AppLayoutComponent } from './layout/app.layout.component';
 import {StartAddComponent} from "./start-add/start-add.component";
 import {DashboardComponent} from "./dashboard/dashboard.component";
 import {AssignmentsComponent} from "./assignments/assignments.component";
+import {ContactAddComponent} from "./contact-add/contact-add.component";
+import {ContactsComponent} from "./contacts/contacts.component";
+import {GroupsComponent} from "./groups/groups.component";
 
 const routerOptions: ExtraOptions = {
     anchorScrolling: 'enabled'
@@ -23,6 +26,9 @@ const routes: Routes = [
             { path: 'ecommerce', data: { breadcrumb: 'E-Commerce' }, loadChildren: () => import('./demo/components/ecommerce/ecommerce.module').then(m => m.EcommerceModule) },
             { path: 'apps', data: { breadcrumb: 'Apps' }, loadChildren: () => import('./demo/components/apps/apps.module').then(m => m.AppsModule) },
             { path: 'start-add', component:StartAddComponent },
+            { path: 'contact-add', component:ContactAddComponent },
+            { path: 'contacts', component:ContactsComponent },
+            { path: 'groups', component:GroupsComponent },
             { path: 'dashboard', component:DashboardComponent },
             { path: 'assignment/:id', component: AssignmentsComponent },
         ]

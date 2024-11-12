@@ -18,11 +18,30 @@ export class AppMenuComponent implements OnInit {
                         label: 'Lisamine test',
                         icon: 'pi pi-fw pi-home',
                         routerLink: ['/dashboard']
+                    },                    {
+                        label: 'Start add test',
+                        icon: 'pi pi-fw pi-home',
+                        routerLink: ['/start-add']
                     },
                     {
                         label: 'Pealeht',
                         icon: 'pi pi-fw pi-home',
                         routerLink: ['/dashboard']
+                    },
+                    {
+                        label: 'Kontaktid',
+                        icon: 'pi pi-fw pi-home',
+                        routerLink: ['/contacts']
+                    },
+                    {
+                        label: 'Grupid test',
+                        icon: 'pi pi-fw pi-home',
+                        routerLink: ['/groups']
+                    },
+                    {
+                        label: 'Lisa kontakt',
+                        icon: 'pi pi-fw pi-home',
+                        routerLink: ['/contact-add']
                     },
                 ],
                 routerLink: ['/dashboard'],

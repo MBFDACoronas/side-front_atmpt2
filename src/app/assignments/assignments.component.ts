@@ -36,18 +36,26 @@ export class AssignmentsComponent implements OnInit{
 
     ngOnInit(): void {
 
-        // Access the id parameter from the route
         this.assignmentId = this.route.snapshot.paramMap.get('id');
-        console.log(this.assignmentId);
         this.assignmentService.fetchAssignmentById(this.assignmentId).subscribe(res=>{
             this.assignment =res;
+            res.drawing.map(item =>{
+                    item.imageFile = this.byteArrayToFile(item.imageFileRequestData, item.name);
+                    item.assignment = this.assignment;
+                    this.drawingsList.push(item);
+            })
+
         })
 
-        // Alternatively, you can subscribe to the route parameters
         this.route.paramMap.subscribe(params => {
             this.assignmentId = params.get('id');
-            console.log(this.assignmentId);
         });
+    }
+
+
+    byteArrayToFile(byteArray: any, fileName: string): File {
+        const blob = new Blob([new Uint8Array(byteArray)], { type: 'application/octet-stream' });
+        return new File([blob], fileName, { type: 'application/octet-stream' });
     }
 
     async onFileSelected(event: Event) {
@@ -70,6 +78,9 @@ export class AssignmentsComponent implements OnInit{
             this.selectedFiles.push({ name: file.name, url: e.target.result });
             this.images.push(e.target.result);
             let drawing:Drawing = new class implements Drawing {
+                imageFile?: File;
+                imageFileRequestData: string;
+                imageUrl?: string;
                 assignment: Assignment;
                 drawingInteraction: DrawingInteraction[];
                 id: string;
@@ -97,6 +108,7 @@ export class AssignmentsComponent implements OnInit{
                         drawingInteraction: DrawingInteraction[];
                         id: string;
                         imageFile: File;
+                        imageFileRequestData: string;
                         imageUrl: string;
                         name: string;
                     }();
@@ -107,6 +119,7 @@ export class AssignmentsComponent implements OnInit{
                     drawing.imageFile = file; // Set the file instead of URL, assuming imageUrls are the image files
 
                     this.drawingsList.push(drawing);
+                    console.log(this.drawingsList);
                 });
             },
             (error) => {
@@ -121,8 +134,11 @@ export class AssignmentsComponent implements OnInit{
     }
 
     saveDrawing() {
+        console.log("drawingsList",this.drawingsList);
         this.drawingsList.forEach(d=>{
             this.drawingService.saveDrawing(d).subscribe(res=>{
+                console.log(res);
+                d.id = res.id;
                 d.drawingInteraction.map(item=>{
                     item.drawing = res.id;
                     this.drawingInteractionService.saveDrawingInteraction(item).subscribe(res=>{

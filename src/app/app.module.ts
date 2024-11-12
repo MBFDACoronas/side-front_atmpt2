@@ -24,6 +24,9 @@ import {ProjectComponent} from "./project/project.component";
 import {CheckboxModule} from "primeng/checkbox";
 import {FilteredTableComponent} from "./filtered-table/filtered-table.component";
 import {TableModule} from "primeng/table";
+import {ContactAddComponent} from "./contact-add/contact-add.component";
+import {ContactsComponent} from "./contacts/contacts.component";
+import {GroupsComponent} from "./groups/groups.component";
 
 @NgModule({
     declarations: [
@@ -31,6 +34,9 @@ import {TableModule} from "primeng/table";
         CameraCaptureComponent,
         AssignmentsComponent,
         DashboardComponent,
+        ContactAddComponent,
+        ContactsComponent,
+        GroupsComponent,
         FilteredTableComponent,
         ProjectComponent,
         ImageDialogComponent,

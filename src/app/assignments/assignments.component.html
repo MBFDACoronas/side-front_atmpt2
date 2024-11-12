@@ -27,21 +27,18 @@
                 </div>
             </div>
 
-            <div class="grid formgrid p-fluid">
-
-                <div *ngFor="let drawing of drawingsList">
-                    <app-image-dialog [drawingInteractions]="drawing.drawingInteraction"  [imageUrl]="drawing.imageUrl" [type]="'DF'"></app-image-dialog>
+            <div class="image-list">
+                <div *ngFor="let drawing of drawingsList" class="image-item">
+                    <!-- Add a container div for styling -->
+                    <div class="image-container">
+                        <app-image-dialog
+                            [drawingInteractions]="drawing.drawingInteraction"
+                            [imageUrl]="drawing.imageUrl"
+                            [type]="'DF'">
+                        </app-image-dialog>
+                    </div>
                 </div>
-
-                <!--                <div class="field mb-4 col-12" *ngIf="images.length > 0">-->
-<!--                    <label for="uploadedFiles" class="font-medium text-900">Uploaded Files</label>-->
-<!--                    <div class="uploaded-files">-->
-<!--                        <div class="file-item" *ngFor="let image of images">-->
-<!--&lt;!&ndash;                            <img [src]="image" alt="Extracted Image" class="uploaded-image" (click)="onImageClick(image)">&ndash;&gt;-->
-<!--                        </div>-->
-<!--                    </div>-->
-<!--            </div>-->
-        </div>
+            </div>
     </div>
 
 </div>

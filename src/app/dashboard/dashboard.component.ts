@@ -3,6 +3,7 @@ import {TableColumn} from "../demo/shared/table-column.interface";
 import {AssignmentService} from "../assignment/assignment.service";
 import {Assignment} from "../assignment/assignment.model";
 import {Router} from "@angular/router";
+import {Drawing} from "../drawing/drawing.model";
 
 
 @Component({
@@ -24,14 +25,14 @@ export class DashboardComponent implements OnInit{
     ngOnInit(): void {
         this.selectedTableColumns = [
             {
-                name: 'Column 1',
+                name: 'Projekt',
                 value: 'column1Value',
                 width: '180px',
                 sort: true,
                 filter: { type: 'contains' }
             },
             {
-                name: 'Column 2',
+                name: 'Nimi',
                 value: 'column2Value',
                 width: '180px',
                 sort: true,
@@ -60,6 +61,7 @@ export class DashboardComponent implements OnInit{
     createAssignment() {
         let assignment = new class implements Assignment {
             id: string;
+            drawing: Drawing[];
             name: string;
         }
         assignment.name = "test"

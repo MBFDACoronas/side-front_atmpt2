@@ -52,3 +52,21 @@
     font-size: 0.8rem;
     text-align: center;
 }
+/* assignments.component.scss */
+
+.image-list {
+    display: flex;
+    flex-direction: column; /* Ensure images are stacked vertically */
+    align-items:center;
+}
+
+.image-item {
+    margin-bottom: 20px; /* Space between images */
+}
+
+.image-container {
+    border: 1px solid #ccc; /* Border around the image */
+    padding: 10px;          /* Padding inside the border */
+    border-radius: 5px;     /* Optional: Rounded corners */
+    //background-color: #fff; /* Optional: Background color */
+}
