@@ -1,20 +1,34 @@
-<div class="col-12">
-            <span class="p-float-label">
-                <p-dropdown inputId="dropdown"
-                            [autoDisplayFirst]="false"
-                            [options]="projectList"
-                            [(ngModel)]="project"
-                            optionLabel="projectName"></p-dropdown>
-                <label for="dropdown">Projekt</label>
-            </span>
+<div class="grid p-fluid">
+    <div class="col-12 md:col-12">
+
+    <h5>Projekti valik</h5>
+    </div>
+
+    <div class="col-12 md:col-6">
+
+
+        <p-dropdown
+            inputId="dropdown"
+            id="dropdown"
+            [autoDisplayFirst]="false"
+            [options]="projectList"
+            [(ngModel)]="project"
+            (onChange)="onProjectChange($event)"
+            optionLabel="projectName"
+        ></p-dropdown>
+    </div>
+
+    <div class="col-12 md:col-6">
+    <button (click)="dialogueVisible=true"
+            pButton
+            pRipple
+            class="p-button-secondary"
+            label="Loo objekt"></button>
+
+    </div>
 </div>
 
 
-<button (click)="dialogueVisible=true"
-        pButton
-        pRipple
-        class="p-button-secondary"
-        label="Lisa projekt"></button>
 <p-dialog [(visible)]="dialogueVisible"
           (visibleChange)="onVisibleChange($event)"
           [style]="{width: '800px'}"
@@ -48,7 +62,6 @@
             </div>
 
 
-
         </div>
     </ng-template>
     <ng-template pTemplate="footer">
@@ -72,4 +85,3 @@
         ></button>
     </ng-template>
 </p-dialog>
-

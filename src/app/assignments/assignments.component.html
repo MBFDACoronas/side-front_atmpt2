@@ -1,5 +1,5 @@
 <div class="card">
-
+<h1>{{assignment.project.projectName}}</h1>
 </div>
 
 
@@ -7,7 +7,10 @@
 <div class="card">
 
     <span class="text-900 text-xl font-bold mb-4 block">Ülesanne</span>
-
+    <div class="field mb-4 col-12 md:col-6">
+        <label for="email" class="font-medium text-900">Nimetus</label>
+        <input id="email" type="text" pInputText [(ngModel)]="assignment.name">
+    </div>
     <div class="grid">
 
 
@@ -46,7 +49,7 @@
         pButton
         pRipple
         class="p-button-secondary"
-        (click)="saveDrawing()"
+        (click)="saveAssignment()"
         label="Salvesta">
     </button>
 <!--<p-dialog #cameraDialog header="Capture Image" [(visible)]="displayCameraDialog" [modal]="true" [style]="{width: '80vw', height: '80vh'}" (onShow)="onDialogShow(cameraDialog)">-->
@@ -57,3 +60,61 @@
 <!--    <app-image-dialog [imageUrl]="selectedImage" [type]="'DF'" (imageLoaded)="onImageLoaded($event)"></app-image-dialog>-->
 <!--</p-dialog>-->
 </div>
+
+<p-dialog [(visible)]="dialogueVisible"
+          (visibleChange)="onVisibleChange($event)"
+          [style]="{width: '800px'}"
+          [modal]="true"
+          [draggable]="false"
+          styleClass="p-fluid"
+>
+    <ng-template pTemplate="header">
+        <h2>Salvestamine</h2>
+    </ng-template>
+    <ng-template pTemplate="content">
+        <div class="formgrid grid">
+
+            <app-start-add></app-start-add>
+
+<!--            <div class="field col-12">-->
+<!--                <label for="projectName">TODO</label>-->
+<!--                <input pInputText-->
+<!--                       id="projectName"-->
+<!--                       [(ngModel)]="project.projectName"-->
+<!--                       type="text"-->
+<!--                       [required]="true"-->
+<!--                       name="projectName">-->
+<!--            </div>-->
+<!--            <div class="field-radiobutton col-12">-->
+<!--                <label for="valid">TODO</label>-->
+<!--                <p-checkbox id="valid"-->
+<!--                            (click)="setActive(project.valid)"-->
+<!--                            [value]="project.valid"-->
+<!--                            [(ngModel)]="project.valid"-->
+<!--                            [binary]="true"></p-checkbox>-->
+<!--            </div>-->
+
+
+        </div>
+    </ng-template>
+    <ng-template pTemplate="footer">
+        <button
+            pButton
+            pRipple
+            label="Tühista"
+            icon="pi pi-times"
+            id="cancel-btn"
+            class="p-button p-button-danger"
+            (click)="dialogueVisible = false; this.selectedRow = null;"
+        ></button>
+        <button
+            pButton
+            pRipple
+            [label]="'Salvesta'"
+            id="save-btn"
+            icon="pi pi-check"
+            class="p-button p-button-success"
+            (click)="save()"
+        ></button>
+    </ng-template>
+</p-dialog>

@@ -13,7 +13,7 @@ import {InputGroupModule} from "primeng/inputgroup";
 import {InputTextModule} from "primeng/inputtext";
 import {InputTextareaModule} from "primeng/inputtextarea";
 import {RippleModule} from "primeng/ripple";
-import {SharedModule} from "primeng/api";
+import {MessageService, SharedModule} from "primeng/api";
 import {StartAddComponent} from "./start-add/start-add.component";
 import {FormsModule} from "@angular/forms";
 import {AutoCompleteModule} from "primeng/autocomplete";
@@ -27,6 +27,26 @@ import {TableModule} from "primeng/table";
 import {ContactAddComponent} from "./contact-add/contact-add.component";
 import {ContactsComponent} from "./contacts/contacts.component";
 import {GroupsComponent} from "./groups/groups.component";
+import {InputSwitchModule} from "primeng/inputswitch";
+import {ListboxModule} from "primeng/listbox";
+import {MultiSelectModule} from "primeng/multiselect";
+import {RadioButtonModule} from "primeng/radiobutton";
+import {SelectButtonModule} from "primeng/selectbutton";
+import {ToggleButtonModule} from "primeng/togglebutton";
+import {CalendarModule} from "primeng/calendar";
+import {ChipsModule} from "primeng/chips";
+import {ColorPickerModule} from "primeng/colorpicker";
+import {InputNumberModule} from "primeng/inputnumber";
+import {KnobModule} from "primeng/knob";
+import {RatingModule} from "primeng/rating";
+import {SliderModule} from "primeng/slider";
+import {NotificationComponent} from "./notification/notification.component";
+import {NotificationService} from "./notification/notification.service";
+import {ToastrModule} from "ngx-toastr";
+import {TranslateLoader, TranslateModule} from "@ngx-translate/core";
+import {HttpClient} from "@angular/common/http";
+import {TranslateHttpLoader} from "@ngx-translate/http-loader";
+import {ToastModule} from "primeng/toast";
 
 @NgModule({
     declarations: [
@@ -38,6 +58,7 @@ import {GroupsComponent} from "./groups/groups.component";
         ContactsComponent,
         GroupsComponent,
         FilteredTableComponent,
+        NotificationComponent,
         ProjectComponent,
         ImageDialogComponent,
         StartAddComponent
@@ -60,12 +81,38 @@ import {GroupsComponent} from "./groups/groups.component";
         FormsModule,
         AutoCompleteModule,
         CheckboxModule,
-        TableModule
+        TableModule,
+        InputSwitchModule,
+        ListboxModule,
+        MultiSelectModule,
+        RadioButtonModule,
+        SelectButtonModule,
+        ToggleButtonModule,
+        CalendarModule,
+        ChipsModule,
+        ColorPickerModule,
+        InputNumberModule,
+        KnobModule,
+        RatingModule,
+        ToastrModule.forRoot(), // Add this line
+        TranslateModule.forRoot({
+            loader: {
+                provide: TranslateLoader,
+                useFactory: HttpLoaderFactory,
+                deps: [HttpClient]
+            }
+        }),
+        SliderModule,
+        ToastModule
     ],
 
-    providers: [
-        { provide: LocationStrategy, useClass: HashLocationStrategy }
+    providers: [MessageService,
+        { provide: LocationStrategy, useClass: HashLocationStrategy },
+        { provide: NotificationComponent, useClass: HashLocationStrategy }
     ],
     bootstrap: [AppComponent]
 })
 export class AppModule { }
+export function HttpLoaderFactory(http: HttpClient): TranslateHttpLoader {
+    return new TranslateHttpLoader(http);
+}

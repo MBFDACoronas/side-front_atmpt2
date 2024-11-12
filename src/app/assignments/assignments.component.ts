@@ -8,30 +8,43 @@ import {DrawingInteraction} from "../drawing-interaction/drawing-interaction.mod
 import {AssignmentService} from "../assignment/assignment.service";
 import {DrawingService} from "../drawing/drawing.service";
 import {DrawingInteractionService} from "../drawing-interaction/drawing-interaction.service";
-
+import {NotificationService} from "../notification/notification.service";
+import {MessageService} from "primeng/api";
+import {Project} from "../project/project.model";
 @Component({
   selector: 'app-assignments',
   templateUrl: './assignments.component.html',
-  styleUrl: './assignments.component.scss'
+    styleUrls: ['./assignments.component.scss']
 })
 export class AssignmentsComponent implements OnInit{
+
+    messages: any[] = [];
     selectedFiles: { name: string, url: string }[] = [];
     drawingsList: Drawing[] = [];
     images: string[] = [];
 
     selectedImage: string;
     private assignmentId: any;
-    private assignment: Assignment;
+    assignment: Assignment;
+    dialogueVisible: boolean;
 
     constructor(
         private pdfService: PdfService,
         private route: ActivatedRoute,
         private assignmentService: AssignmentService,
+        private notificationService: NotificationService,
+        private messageService: MessageService,
         private drawingService: DrawingService,
         private drawingInteractionService: DrawingInteractionService,
         private http: HttpClient
 
-    ) {}
+    ) {
+        this.assignment = {
+            name: '',
+            id: '',
+            drawing: [],
+        } as Assignment;
+    }
 
 
     ngOnInit(): void {
@@ -134,9 +147,9 @@ export class AssignmentsComponent implements OnInit{
     }
 
     saveDrawing() {
-        console.log("drawingsList",this.drawingsList);
         this.drawingsList.forEach(d=>{
             this.drawingService.saveDrawing(d).subscribe(res=>{
+
                 console.log(res);
                 d.id = res.id;
                 d.drawingInteraction.map(item=>{
@@ -148,6 +161,31 @@ export class AssignmentsComponent implements OnInit{
                 })
             });
         })
+
+    }
+
+    saveAssignment() {
+
+        let assignment = new class implements Assignment {
+            drawing: null;
+            id: string;
+            project: Project;
+            name: string;
+        }
+        assignment.id = this.assignmentId;
+        assignment.name = this.assignment.name;
+        assignment.project = this.assignment.project;
+        this.assignmentService.saveAssignment(assignment).subscribe(res=>{
+            this.messageService.add({severity:'success', summary:'Salvestamine', detail:'Salvestamine õnnestus'});
+
+            this.saveDrawing();
+        })
+    }
+
+    onVisibleChange($event: boolean) {
+        if(!$event){
+                this.assignment = {} as Assignment;
+        }
 
     }
 }

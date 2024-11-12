@@ -15,6 +15,10 @@ export class AssignmentService {
     return this.http.get<Assignment[]>("/api/assignment/list");
   }
 
+  fetchAllAssignmentsByProjectId(projectId: string): Observable<Assignment[]>{
+    return this.http.get<Assignment[]>(`/api/assignment/list-project/${projectId}`);
+  }
+
   saveAssignment(assignment: Assignment): Observable<Assignment>{
     return this.http.post<Assignment>("/api/assignment/save", assignment);
   }

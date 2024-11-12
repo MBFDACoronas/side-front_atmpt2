@@ -1,19 +1,29 @@
 <div class="card">
 
+    <div class="grid p-fluid">
+    </div>
 
     <h5>Projektid</h5>
-        <app-project></app-project>
+        <app-project (projectSelected)="projectSelected($event)"></app-project>
+
+
+    <div class="col-12">
+
+
+    </div>
+
+    <h5>Ülesanded</h5>
 
     <button
-            pButton
-            pRipple
-            class="p-button-secondary"
-            (click)="createAssignment()"
-            label="Lisa Ülesanne">
-
+        pButton
+        [disabled]="!selectedRow"
+        pRipple
+        class="p-button-secondary"
+        (click)="modifyAssignment()"
+        label="Muuda">
     </button>
 
-<!--    </div>-->
+    <!--    </div>-->
     <app-filtered-table
         [fluid]="true"
         [value]="projectList"
@@ -34,5 +44,11 @@
             </div>
         </ng-template>
     </app-filtered-table>
-
+    <button
+        pButton
+        pRipple
+        class="p-button-secondary"
+        (click)="createAssignment(selectedProjectId)"
+        label="Lisa Ülesanne">
+    </button>
 </div>
