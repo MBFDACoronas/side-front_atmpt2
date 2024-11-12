@@ -11,6 +11,8 @@ import {DrawingInteractionService} from "../drawing-interaction/drawing-interact
 import {NotificationService} from "../notification/notification.service";
 import {MessageService} from "primeng/api";
 import {Project} from "../project/project.model";
+import {OPS} from "pdfjs-dist";
+
 @Component({
   selector: 'app-assignments',
   templateUrl: './assignments.component.html',
@@ -48,7 +50,7 @@ export class AssignmentsComponent implements OnInit{
 
 
     ngOnInit(): void {
-
+        this.dialogueVisible=true;
         this.assignmentId = this.route.snapshot.paramMap.get('id');
         this.assignmentService.fetchAssignmentById(this.assignmentId).subscribe(res=>{
             this.assignment =res;
@@ -182,10 +184,21 @@ export class AssignmentsComponent implements OnInit{
         })
     }
 
+    openDialogue() {
+            this.dialogueVisible = true;
+
+    }
     onVisibleChange($event: boolean) {
         if(!$event){
                 this.assignment = {} as Assignment;
         }
+
+    }
+
+    protected readonly OPS = OPS;
+
+    saveAssignmentDetails() {
+
 
     }
 }

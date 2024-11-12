@@ -105,7 +105,7 @@ export class ProjectComponent implements OnInit {
     }
 
     onProjectChange(event: any) {
-        this.projectSelected.emit(event.value.id);
+        this.projectSelected.emit(event.value);
     }
 
 

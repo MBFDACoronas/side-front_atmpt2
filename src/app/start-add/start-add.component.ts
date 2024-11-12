@@ -50,6 +50,8 @@ export class StartAddComponent implements OnInit {
         if (input.files && input.files.length > 0) {
             for (let i = 0; i < input.files.length; i++) {
                 const file = input.files[i];
+                console.log(file.type);
+
                 if (file.type === 'application/pdf') {
                     this.handlePdf(file);
                 } else if (file.type.startsWith('image/')) {
@@ -63,7 +65,11 @@ export class StartAddComponent implements OnInit {
         const reader = new FileReader();
         reader.onload = (e: any) => {
             this.selectedFiles.push({ name: file.name, url: e.target.result });
+            this.images.push(e.target.result);
         };
+
+
+        console.log(file);
         reader.readAsDataURL(file);
     }
 

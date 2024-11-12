@@ -20,6 +20,8 @@ import {Drawing} from "../drawing/drawing.model";
 export class ImageDialogComponent implements OnInit, OnChanges, AfterViewInit {
     @Input() imageUrl: any;
     @Input() type: string;
+    dialogueVisible: boolean = false;
+
     @Output() imageLoaded = new EventEmitter<{ width: number, height: number }>();
     @ViewChild('imageCanvas', { static: true }) imageCanvas: ElementRef<HTMLCanvasElement>;
     private context: CanvasRenderingContext2D;
@@ -132,9 +134,17 @@ export class ImageDialogComponent implements OnInit, OnChanges, AfterViewInit {
                 drawing: "0", // Assuming you have the drawing ID available
                 id: null, // Or generate a UUID if needed
             };
+            this.dialogueVisible = true;
             this.drawingInteractions.push(drawingInteraction);
         }
     }
 
 
+    onVisibleChange($event: boolean) {
+
+    }
+
+    saveAssignmentDetails() {
+
+    }
 }

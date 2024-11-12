@@ -17,6 +17,7 @@ export class DashboardComponent implements OnInit{
     loading: boolean = false;
     selectedRow: any;
     selectedProjectId: string;
+    selectedProject: Project;
     constructor(
         private assignmentService:AssignmentService,
         private router:Router,
@@ -73,6 +74,7 @@ export class DashboardComponent implements OnInit{
             projectName: string;
             valid: boolean;
         }
+        project = this.selectedProject;
         let assignment = new class implements Assignment {
             id: string;
             drawing: Drawing[];
@@ -88,9 +90,9 @@ export class DashboardComponent implements OnInit{
         this.router.navigate(['/assignment/'+this.selectedRow.id]);
     }
 
-    projectSelected($event: string) {
-        this.selectedProjectId = $event;
-        this.assignmentService.fetchAllAssignmentsByProjectId($event).subscribe(res=>{
+    projectSelected($event: Project) {
+        this.selectedProject = $event;
+        this.assignmentService.fetchAllAssignmentsByProjectId(this.selectedProject.id).subscribe(res=>{
             this.projectList = res;
         });
     }
