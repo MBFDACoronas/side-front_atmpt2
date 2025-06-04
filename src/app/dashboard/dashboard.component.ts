@@ -47,13 +47,6 @@ export class DashboardComponent implements OnInit{
             this.projectList = res;
         });
 
-        // Example data
-        // this.projectList = [
-        //     { column1Value: 'Value 1', column2Value: 'Value 2' },
-        //     { column1Value: 'Value 3', column2Value: 'Value 4' }
-        // ];
-
-
     }
     openDialog(data: any): void {
         // Open dialog logic

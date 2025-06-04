@@ -7,6 +7,8 @@ import {AssignmentsComponent} from "./assignments/assignments.component";
 import {ContactAddComponent} from "./contact-add/contact-add.component";
 import {ContactsComponent} from "./contacts/contacts.component";
 import {GroupsComponent} from "./groups/groups.component";
+import {SettingsComponent} from "./pages/settings/settings.component";
+import {AllAssignmentsComponent} from "./all-assignments/all-assignments.component";
 
 const routerOptions: ExtraOptions = {
     anchorScrolling: 'enabled'
@@ -30,6 +32,13 @@ const routes: Routes = [
             { path: 'contacts', component:ContactsComponent },
             { path: 'groups', component:GroupsComponent },
             { path: 'dashboard', component:DashboardComponent },
+            { path: 'all-assignments', component:AllAssignmentsComponent },
+            // { path: 'assignments/all', component:DashboardComponent }, // Tulevad sama komponendi alla
+            // { path: 'assignments/in-progress', component:DashboardComponent },
+            // { path: 'assignments/confirmed', component:DashboardComponent },
+            // { path: 'assignments/closed', component:DashboardComponent },
+            // { path: 'assignments/templates', component:DashboardComponent },
+            // { path: 'settings', component:SettingsComponent },
             { path: 'assignment/:id', component: AssignmentsComponent },
         ]
     },

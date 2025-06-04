@@ -18,7 +18,38 @@ export class AppMenuComponent implements OnInit {
                         label: 'Lisamine test',
                         icon: 'pi pi-fw pi-home',
                         routerLink: ['/dashboard']
-                    },                    {
+                    },
+                    {
+                        label: 'Kõik ülesanded',
+                        icon: 'pi pi-fw pi-home',
+                        routerLink: ['/all-assignments']
+                    },
+                    {
+                        label: 'Postkast',
+                        icon: 'pi pi-fw pi-home',
+                        routerLink: ['/dashboard']
+                    },
+                    {
+                        label: 'Jätkuv',
+                        icon: 'pi pi-fw pi-home',
+                        routerLink: ['/dashboard']
+                    },
+                    {
+                        label: 'Kinnitatud, kontroll',
+                        icon: 'pi pi-fw pi-home',
+                        routerLink: ['/dashboard']
+                    },
+                    {
+                        label: 'Suletud',
+                        icon: 'pi pi-fw pi-home',
+                        routerLink: ['/dashboard']
+                    },
+                    {
+                        label: 'Mustandid',
+                        icon: 'pi pi-fw pi-home',
+                        routerLink: ['/dashboard']
+                    },
+                    {
                         label: 'Start add test',
                         icon: 'pi pi-fw pi-home',
                         routerLink: ['/start-add']

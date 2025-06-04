@@ -1,9 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 
 import {ConfirmationService, MessageService} from 'primeng/api';
-import {Product} from "../../demo/domain/product";
-import {ProductService} from "../../demo/service/productservice";
-import {AppBreadcrumbService} from "../../app.breadcrumb.service";
+
 
 @Component({
     templateUrl: './settings.component.html',
@@ -34,12 +32,12 @@ export class SettingsComponent implements OnInit {
     deleteProductDialog: boolean = false;
 
     deleteProductsDialog: boolean = false;
-
-    products: Product[];
-
-    product: Product;
-
-    selectedProducts: Product[];
+    //
+    // products: Product[];
+    //
+    // product: Product;
+    //
+    // selectedProducts: Product[];
 
     submitted: boolean;
 
@@ -50,10 +48,8 @@ export class SettingsComponent implements OnInit {
     rowsPerPageOptions = [5, 10, 20];
 
     constructor(private messageService: MessageService,
-                private confirmationService: ConfirmationService, private breadcrumbService: AppBreadcrumbService) {
-        this.breadcrumbService.setItems([
-            { label: 'Esileht', routerLink: ['/dashboard/dashboard'] }
-        ]);
+                private confirmationService: ConfirmationService) {
+
     }
 
     ngOnInit() {
