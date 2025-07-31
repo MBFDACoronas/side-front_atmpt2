@@ -9,7 +9,7 @@ const TABLE_COLUMNS: TableColumn[] = [
 
 
             {
-            name: 'TODO',
+            name: 'Nimi',
             value: 'name',
             width: '180px',
             sort: true,
@@ -17,7 +17,7 @@ const TABLE_COLUMNS: TableColumn[] = [
           },
 
             {
-            name: 'TODO',
+            name: 'Identifikaator',
             value: 'identifier',
             width: '180px',
             sort: true,
@@ -114,7 +114,8 @@ export class TypeComponent implements OnInit {
 
 
   delete($event: any) {
-      let item = $event.value as Type;
+      console.log($event);
+      let item = $event as Type;
 
     this.confirmationService.confirm({
       header: 'Kinnitamine',
@@ -122,12 +123,14 @@ export class TypeComponent implements OnInit {
       icon: 'pi pi-exclamation-triangle',
       acceptLabel: 'Jah',
       rejectLabel: 'Ei',
-      rejectButtonStyleClass: 'p-button-text',
-      acceptButtonStyleClass: 'p-button-text',
+      rejectButtonStyleClass: 'p-button p-button-danger',
+      acceptButtonStyleClass: 'p-button p-button-success',
       accept: () => {
 
         this.typeService.deleteType(item.id).pipe(
           finalize(() => {
+              this.dialogueVisible = false;
+              this.selectedRow = null;
           })
         ).subscribe(() => this.fetchAll());
 
@@ -138,6 +141,8 @@ export class TypeComponent implements OnInit {
   closeDialogue() {
     this.dialogueVisible = false;
   }
-
+    typeChange(event: any) {
+       // this.typeSelected.emit(event.value);
+    }
 
 }

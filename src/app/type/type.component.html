@@ -1,33 +1,38 @@
-<div class="grid p-fluid">
-    <div class="col-12 md:col-12">
+<div class="pl-4 pr-4">
 
-        <h5>Projekti valik</h5>
+    <h5>Header</h5>
+
+
+    <div class="flex">
+        <div class="flex justify-content-end">
+            <button pButton pRipple label="Lisa" icon="pi pi-plus" class="p-button-success mr-2"
+                    (click)="openDialog(null)"></button>
+        </div>
     </div>
 
-    <div class="col-12 md:col-6">
+    <app-filtered-table
+        [fluid]="true"
+        [value]="typeList"
+        [loading]="loading"
+        [paginator]="true"
+        [columns]="selectedTableColumns"
+        (rowSelected)="openDialog($event.data)"
+        (rowEditInit)="rowEditInit($event)"
+        (rowDeleted)="delete($event)"
+        [selectionMode]="'single'"
+        [(selection)]="selectedRow"
+        [allowDeletion]="true"
+        editMode="rowDialog"
+    >
+        <ng-template #caption>
+            <div class="flex justify-content-end">
+                <button pButton pRipple label="Lisa probleemi tüüp" icon="pi pi-plus" class="p-button-success mr-2" (click)="openDialog(null)"></button>
+            </div>
+        </ng-template>
+    </app-filtered-table>
 
 
-        <p-dropdown
-            inputId="dropdown"
-            id="dropdown"
-            [autoDisplayFirst]="false"
-            [options]="projectList"
-            [(ngModel)]="project"
-            (onChange)="onProjectChange($event)"
-            optionLabel="projectName"
-        ></p-dropdown>
-    </div>
-
-    <div class="col-12 md:col-6">
-        <button (click)="dialogueVisible=true"
-                pButton
-                pRipple
-                class="p-button-secondary"
-                label="Loo objekt"></button>
-
-    </div>
 </div>
-
 
 <p-dialog [(visible)]="dialogueVisible"
           (visibleChange)="onVisibleChange($event)"
@@ -44,44 +49,69 @@
 
 
             <div class="field col-12">
-                <label for="projectName">Nimi</label>
-                <input pInputText
-                       id="projectName"
-                       [(ngModel)]="project.projectName"
-                       type="text"
+                <label for="name">Nimi</label>
+                <input pInputText id="name" [(ngModel)]="type.name" type="text"
                        [required]="true"
-                       name="projectName">
+                       name="name">
             </div>
-            <div class="field-radiobutton col-12">
-                <label for="valid">TODO</label>
-                <p-checkbox id="valid"
-                            (click)="setActive(project.valid)"
-                            [value]="project.valid"
-                            [(ngModel)]="project.valid"
-                            [binary]="true"></p-checkbox>
+            <div class="field col-12">
+                <label for="identifier">Identifikaator</label>
+                <input pInputText id="identifier" [(ngModel)]="type.identifier" type="text"
+                       [required]="true"
+                       name="identifier">
             </div>
+
+
 
 
         </div>
     </ng-template>
+
     <ng-template pTemplate="footer">
-        <button
-            pButton
-            pRipple
-            label="Tühista"
-            icon="pi pi-times"
-            id="cancel-btn"
-            class="p-button p-button-danger"
-            (click)="dialogueVisible = false; this.selectedRow = null;"
-        ></button>
-        <button
-            pButton
-            pRipple
-            [label]="'Salvesta'"
-            id="save-btn"
-            icon="pi pi-check"
-            class="p-button p-button-success"
-            (click)="save()"
-        ></button>
+        <div class="flex justify-content-between">
+            <button
+                pButton
+                pRipple
+                label="Tühista"
+                icon="pi pi-times"
+                id="cancel-btn"
+                class="p-button p-button-link"
+                (click)="dialogueVisible = false; this.selectedRow = null;"
+            ></button>
+            <div>
+                <button
+                    pButton
+                    pRipple
+                    [label]="'Kustuta'"
+                    id="delete-btn"
+                    icon="pi pi-check"
+                    class="p-button p-button-danger mr-2"
+                    (click)="delete(type)"
+                ></button>
+                <button
+                    pButton
+                    pRipple
+                    [label]="'Salvesta'"
+                    id="save-btn"
+                    icon="pi pi-check"
+                    class="p-button p-button-success"
+                    (click)="save()"
+                ></button>
+            </div>
+        </div>
     </ng-template>
 </p-dialog>
+<p-confirmDialog></p-confirmDialog>
+
+
+
+<!--DROPDOWN TODO delete-->
+<p-dropdown
+    inputId="dropdown"
+    id="dropdown"
+    [autoDisplayFirst]="false"
+    [options]="typeList"
+    [(ngModel)]="type"
+    (onChange)="typeChange($event)"
+    optionLabel="name"
+></p-dropdown>

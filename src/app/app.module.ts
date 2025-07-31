@@ -13,7 +13,7 @@ import {InputGroupModule} from "primeng/inputgroup";
 import {InputTextModule} from "primeng/inputtext";
 import {InputTextareaModule} from "primeng/inputtextarea";
 import {RippleModule} from "primeng/ripple";
-import {MessageService, SharedModule} from "primeng/api";
+import {ConfirmationService, MessageService, SharedModule} from "primeng/api";
 import {StartAddComponent} from "./start-add/start-add.component";
 import {FormsModule} from "@angular/forms";
 import {AutoCompleteModule} from "primeng/autocomplete";
@@ -48,6 +48,8 @@ import {HttpClient} from "@angular/common/http";
 import {TranslateHttpLoader} from "@ngx-translate/http-loader";
 import {ToastModule} from "primeng/toast";
 import {AllAssignmentsComponent} from "./all-assignments/all-assignments.component";
+import {TypeComponent} from "./type/type.component";
+import {ConfirmDialogModule} from "primeng/confirmdialog";
 
 @NgModule({
     declarations: [
@@ -62,6 +64,7 @@ import {AllAssignmentsComponent} from "./all-assignments/all-assignments.compone
         FilteredTableComponent,
         NotificationComponent,
         ProjectComponent,
+        TypeComponent,
         ImageDialogComponent,
         StartAddComponent
     ],
@@ -105,10 +108,11 @@ import {AllAssignmentsComponent} from "./all-assignments/all-assignments.compone
             }
         }),
         SliderModule,
-        ToastModule
+        ToastModule,
+        ConfirmDialogModule
     ],
 
-    providers: [MessageService,
+    providers: [MessageService, ConfirmationService,
         { provide: LocationStrategy, useClass: HashLocationStrategy },
         { provide: NotificationComponent, useClass: HashLocationStrategy }
     ],
