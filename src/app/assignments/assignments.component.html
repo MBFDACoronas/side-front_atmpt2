@@ -8,9 +8,42 @@
 
     <span class="text-900 text-xl font-bold mb-4 block">Ülesanne</span>
     <div class="field mb-4 col-12 md:col-6">
-        <label for="email" class="font-medium text-900">Nimetus</label>
-        <input id="email" type="text" pInputText [(ngModel)]="assignment.name">
+        <label for="name" class="font-medium text-900">Nimetus</label>
+        <input id="name" type="text" pInputText [(ngModel)]="assignment.name">
     </div>
+
+
+<!--    <div class="field mb-4 col-12">-->
+<!--        <h5>Vastutav</h5>-->
+<!--        <p-autoComplete id="vastutav" [(ngModel)]="selectedVastutavad" [suggestions]="filteredVastutavad"-->
+<!--                        (completeMethod)="filteredVastutav($event)" field="name" [dropdown]="true">-->
+<!--        </p-autoComplete>-->
+<!--    </div>-->
+<!--    <div class="field mb-4 col-12">-->
+<!--        <h5>Teema</h5>-->
+<!--        <p-autoComplete id="teema" [(ngModel)]="selectedVastutavad" [suggestions]="filteredVastutavad"-->
+<!--                        (completeMethod)="filteredVastutav($event)" field="name" [dropdown]="true">-->
+<!--        </p-autoComplete>-->
+<!--    </div>-->
+
+<!--    <div class="field mb-4 col-12">-->
+<!--        <h5>Asukoht</h5>-->
+<!--        <p-autoComplete id="asukoht" [(ngModel)]="selectedVastutavad" [suggestions]="filteredVastutavad"-->
+<!--                        (completeMethod)="filteredVastutav($event)" field="name" [dropdown]="true">-->
+<!--        </p-autoComplete>-->
+<!--    </div>-->
+
+<!--    <div class="field mb-4 col-12">-->
+<!--        <h5>ATV</h5>-->
+<!--        <input id="atv" type="text" pInputText>-->
+<!--    </div>-->
+
+    <div class="field mb-4 col-12">
+        <h5>Kirjeldus</h5>
+        <textarea rows="6" pInputTextarea placeholder="Your comment"></textarea>
+    </div>
+
+
     <div class="grid">
 
 
