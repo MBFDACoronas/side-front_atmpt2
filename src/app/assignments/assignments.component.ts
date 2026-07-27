@@ -12,13 +12,14 @@ import {NotificationService} from "../notification/notification.service";
 import {MessageService} from "primeng/api";
 import {Project} from "../project/project.model";
 import {OPS} from "pdfjs-dist";
+import {Type} from "../type/type.model";
+import {TypeService} from "../type/type.service";
 
 @Component({
   selector: 'app-assignments',
   templateUrl: './assignments.component.html',
     styleUrls: ['./assignments.component.scss']
-})
-export class AssignmentsComponent implements OnInit{
+})export class AssignmentsComponent implements OnInit{
 
     messages: any[] = [];
     selectedFiles: { name: string, url: string }[] = [];
@@ -28,8 +29,12 @@ export class AssignmentsComponent implements OnInit{
     selectedImage: string;
     private assignmentId: any;
     assignment: Assignment;
+    selectedType: Type;
+    typeList: Type[];
     dialogueVisible: boolean;
-
+    typeChange(event: any) {
+        this.selectedType = event;
+    }
     constructor(
         private pdfService: PdfService,
         private route: ActivatedRoute,
@@ -38,6 +43,7 @@ export class AssignmentsComponent implements OnInit{
         private messageService: MessageService,
         private drawingService: DrawingService,
         private drawingInteractionService: DrawingInteractionService,
+        private typeService: TypeService,
         private http: HttpClient
 
     ) {
@@ -52,6 +58,11 @@ export class AssignmentsComponent implements OnInit{
     ngOnInit(): void {
         this.dialogueVisible=true;
         this.assignmentId = this.route.snapshot.paramMap.get('id');
+        this.typeService.fetchAllType().subscribe(
+            res=>{
+                this.typeList = res;
+            }
+        )
         this.assignmentService.fetchAssignmentById(this.assignmentId).subscribe(res=>{
             this.assignment =res;
             res.drawing.map(item =>{
@@ -201,4 +212,17 @@ export class AssignmentsComponent implements OnInit{
 
 
     }
+    //
+    // filteredVastutav(event: any) {
+    //     const filtered: any[] = [];
+    //     const query = event.query;
+    //     for (let i = 0; i < this.vastutavadList.length; i++) {
+    //         const country = this.vastutavadList[i];
+    //         if (country.name.toLowerCase().indexOf(query.toLowerCase()) == 0) {
+    //             filtered.push(country);
+    //         }
+    //     }
+    //
+    //     this.filteredVastutavad = filtered;
+    // }
 }

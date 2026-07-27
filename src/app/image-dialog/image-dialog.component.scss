@@ -1,0 +1,50 @@
+:host {
+    display: block;
+    width: 100%;
+    max-width: 1200px;
+}
+
+.drawing-viewer {
+    width: 100%;
+}
+
+.viewer-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin-bottom: 0.5rem;
+}
+
+.zoom-value {
+    min-width: 52px;
+    text-align: center;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.canvas-viewport {
+    width: 100%;
+    box-sizing: border-box;
+    height: min(75vh, 900px);
+    min-height: 420px;
+    overflow: hidden;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background: #f8f9fa;
+    cursor: grab;
+    touch-action: none;
+}
+
+.canvas-viewport:active {
+    cursor: grabbing;
+}
+
+canvas {
+    display: block;
+    transform-origin: 0 0;
+    user-select: none;
+}
+
+canvas.dragging {
+    pointer-events: none;
+}

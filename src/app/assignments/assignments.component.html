@@ -13,12 +13,23 @@
     </div>
 
 
-<!--    <div class="field mb-4 col-12">-->
-<!--        <h5>Vastutav</h5>-->
+    <div class="field mb-4 col-12">
+        <h5>Tüüp</h5>
 <!--        <p-autoComplete id="vastutav" [(ngModel)]="selectedVastutavad" [suggestions]="filteredVastutavad"-->
 <!--                        (completeMethod)="filteredVastutav($event)" field="name" [dropdown]="true">-->
 <!--        </p-autoComplete>-->
-<!--    </div>-->
+
+        <p-dropdown
+            inputId="dropdown"
+            id="dropdown"
+            [autoDisplayFirst]="false"
+            [options]="typeList"
+            [(ngModel)]="selectedType"
+            (onChange)="typeChange($event)"
+            [optionLabel]="'name'"
+        ></p-dropdown>
+
+    </div>
 <!--    <div class="field mb-4 col-12">-->
 <!--        <h5>Teema</h5>-->
 <!--        <p-autoComplete id="teema" [(ngModel)]="selectedVastutavad" [suggestions]="filteredVastutavad"-->

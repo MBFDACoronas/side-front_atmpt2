@@ -1,5 +1,28 @@
 <!--<p-dialog header="Image" [(visible)]="display" [modal]="true" [style]="{width: '80vw', height: '80vh'}" (onHide)="onClose()">-->
-    <canvas #imageCanvas (click)="onCanvasClick($event)"></canvas>
+<div class="drawing-viewer">
+    <div class="viewer-toolbar">
+        <button pButton pRipple type="button" icon="pi pi-search-minus" class="p-button-text p-button-sm"
+                (click)="zoomOut()" title="Zoom out"></button>
+        <span class="zoom-value">{{ zoomPercent }}%</span>
+        <button pButton pRipple type="button" icon="pi pi-search-plus" class="p-button-text p-button-sm"
+                (click)="zoomIn()" title="Zoom in"></button>
+        <button pButton pRipple type="button" icon="pi pi-window-maximize" class="p-button-text p-button-sm"
+                (click)="fitToView()" title="Fit to view"></button>
+        <button pButton pRipple type="button" icon="pi pi-refresh" class="p-button-text p-button-sm"
+                (click)="resetView()" title="Reset view"></button>
+    </div>
+
+    <div class="canvas-viewport"
+         (wheel)="onWheel($event)"
+         (pointerdown)="onPointerDown($event)"
+         (pointermove)="onPointerMove($event)"
+         (pointerup)="onPointerUp($event)"
+         (pointercancel)="onPointerUp($event)">
+        <canvas #imageCanvas
+                [style.transform]="canvasTransform"
+                [class.dragging]="isDragging"></canvas>
+    </div>
+</div>
 
 <!--</p-dialog>-->
 
