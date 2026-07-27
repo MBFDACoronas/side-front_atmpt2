@@ -14,6 +14,9 @@ import {DrawingInteractionService} from "../drawing-interaction/drawing-interact
 import {MessageService} from "primeng/api";
 import {Drawing} from "../drawing/drawing.model";
 import {DrawingService} from "../drawing/drawing.service";
+import {StartAddComponent} from "../start-add/start-add.component";
+import {Type} from "../type/type.model";
+import {AssignmentService} from "../assignment/assignment.service";
 
 @Component({
     selector: 'app-image-dialog',
@@ -50,10 +53,12 @@ export class ImageDialogComponent implements OnInit, OnChanges, AfterViewInit {
     isSavingInteraction = false;
     private selectedInteractionSnapshot: DrawingInteraction | null = null;
     @Input() drawingInteractions!: DrawingInteraction[];
+    @ViewChild('assignmentForm') assignmentForm?: StartAddComponent;
 
     constructor(
         private drawingInteractionService: DrawingInteractionService,
         private drawingService: DrawingService,
+        private assignmentService: AssignmentService,
         private messageService: MessageService,
     ) {
     }
@@ -292,7 +297,7 @@ export class ImageDialogComponent implements OnInit, OnChanges, AfterViewInit {
             return;
         }
 
-        const index = this.getNextDrawingIndex();
+        const index = this.getNextDrawingIndex(this.type);
         const drawingInteraction = this.createInteraction(x, y, index);
         this.drawingInteractions.push(drawingInteraction);
         this.selectedInteraction = drawingInteraction;
@@ -334,7 +339,7 @@ export class ImageDialogComponent implements OnInit, OnChanges, AfterViewInit {
     }
 
     private drawCircleMarker(x: number, y: number, index: number, drawingType: string = this.type): void {
-        const text = (drawingType || this.type) + index.toString();
+        const text = `${drawingType || this.type}-${index}`;
         this.context.font = '12px bold Arial';
         const textWidth = this.context.measureText(text).width;
         const padding = 10; // Padding around the text
@@ -364,8 +369,10 @@ export class ImageDialogComponent implements OnInit, OnChanges, AfterViewInit {
         this.context.fillText(text, x, y);
     }
 
-    private getNextDrawingIndex(): number {
-        const maxIndex = (this.drawingInteractions || []).reduce((max, item) => Math.max(max, item.drawingIndex || 0), 0);
+    private getNextDrawingIndex(drawingType: string = this.type, exclude?: DrawingInteraction): number {
+        const maxIndex = (this.drawingInteractions || [])
+            .filter(item => item !== exclude && (item.drawingType || this.type) === drawingType)
+            .reduce((max, item) => Math.max(max, item.drawingIndex || 0), 0);
         return maxIndex + 1;
     }
 
@@ -402,7 +409,7 @@ export class ImageDialogComponent implements OnInit, OnChanges, AfterViewInit {
 
     private getMarkerBounds(interaction: DrawingInteraction): { left: number, right: number, top: number, bottom: number } {
         this.context.font = '12px bold Arial';
-        const text = (interaction.drawingType || this.type) + interaction.drawingIndex.toString();
+        const text = `${interaction.drawingType || this.type}-${interaction.drawingIndex}`;
         const padding = 10;
         const rectWidth = this.context.measureText(text).width + padding * 2;
         const rectHeight = 20;
@@ -447,8 +454,8 @@ export class ImageDialogComponent implements OnInit, OnChanges, AfterViewInit {
         const canvas = this.imageCanvas.nativeElement;
         interaction.coordX = this.clamp(Number(interaction.coordX) || 0, 0, canvas.width);
         interaction.coordY = this.clamp(Number(interaction.coordY) || 0, 0, canvas.height);
-        interaction.drawingIndex = Math.max(1, Math.round(Number(interaction.drawingIndex) || this.getNextDrawingIndex()));
         interaction.drawingType = interaction.drawingType || this.type;
+        interaction.drawingIndex = Math.max(1, Math.round(Number(interaction.drawingIndex) || this.getNextDrawingIndex(interaction.drawingType, interaction)));
         interaction.drawing = this.getInteractionDrawingId(interaction) || this.getCurrentDrawingId() || "0";
     }
 
@@ -489,15 +496,66 @@ export class ImageDialogComponent implements OnInit, OnChanges, AfterViewInit {
         const interaction = this.selectedInteraction;
         this.normalizeInteraction(interaction);
         this.redrawCanvas();
-        const drawingId = this.getInteractionDrawingId(interaction);
 
         this.isSavingInteraction = true;
+        if (this.interactionDialogMode === 'create' && this.assignmentForm) {
+            const assignment = this.assignmentForm.buildAssignment();
+            if (!assignment) {
+                this.isSavingInteraction = false;
+                return;
+            }
+
+            this.assignmentService.saveAssignment(assignment).subscribe({
+                next: savedAssignment => {
+                    interaction.assignment = savedAssignment.id;
+                    this.applyAssignmentNumberToInteraction(savedAssignment.number, interaction);
+                    this.saveInteractionWithDrawing(interaction);
+                },
+                error: error => {
+                    console.error('Error saving assignment:', error);
+                    this.messageService.add({severity: 'error', summary: 'Salvestamine', detail: 'Ülesande salvestamine ebaõnnestus'});
+                    this.isSavingInteraction = false;
+                }
+            });
+            return;
+        }
+
+        this.saveInteractionWithDrawing(interaction);
+    }
+
+    private saveInteractionWithDrawing(interaction: DrawingInteraction): void {
+        const drawingId = this.getInteractionDrawingId(interaction);
         if (!drawingId || drawingId === "0") {
             this.saveDrawingBeforeInteraction(interaction);
             return;
         }
 
         this.saveInteraction(interaction, drawingId);
+    }
+
+    onAssignmentTypeSelected(type: Type): void {
+        if (!type || !this.selectedInteraction) {
+            return;
+        }
+
+        const identifier = type.identifier || type.name || this.type;
+        this.type = identifier;
+        this.selectedInteraction.drawingType = identifier;
+        if (this.interactionDialogMode === 'create') {
+            this.selectedInteraction.drawingIndex = this.getNextDrawingIndex(identifier, this.selectedInteraction);
+        }
+        this.redrawCanvas();
+    }
+
+    private applyAssignmentNumberToInteraction(number: string, interaction: DrawingInteraction): void {
+        const match = /^(.+)-(\d+)$/.exec(number || '');
+        if (!match) {
+            return;
+        }
+
+        interaction.drawingType = match[1];
+        interaction.drawingIndex = Number(match[2]);
+        this.redrawCanvas();
     }
 
     private saveDrawingBeforeInteraction(interaction: DrawingInteraction): void {

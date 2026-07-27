@@ -7,6 +7,6 @@ export interface DrawingInteraction {
     coordY: number;
     drawingType: string;
     drawingIndex: number;
+    assignment?: string;
 }
-
 

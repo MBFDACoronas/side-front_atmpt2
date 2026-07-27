@@ -10,7 +10,7 @@ import {DrawingService} from "../drawing/drawing.service";
 import {DrawingInteractionService} from "../drawing-interaction/drawing-interaction.service";
 import {NotificationService} from "../notification/notification.service";
 import {MessageService} from "primeng/api";
-import {Project} from "../project/project.model";
+import {Project, ProjectAddress, ProjectSector} from "../project/project.model";
 import {OPS} from "pdfjs-dist";
 import {Type} from "../type/type.model";
 import {TypeService} from "../type/type.service";
@@ -31,6 +31,10 @@ import {TypeService} from "../type/type.service";
     assignment: Assignment;
     selectedType: Type;
     typeList: Type[];
+    addressOptions: ProjectAddress[] = [];
+    sectorOptions: ProjectSector[] = [];
+    selectedAddress: ProjectAddress;
+    selectedSector: ProjectSector;
     dialogueVisible: boolean;
     typeChange(event: any) {
         this.selectedType = event;
@@ -65,6 +69,7 @@ import {TypeService} from "../type/type.service";
         )
         this.assignmentService.fetchAssignmentById(this.assignmentId).subscribe(res=>{
             this.assignment =res;
+            this.configureProjectHierarchy();
             res.drawing.map(item =>{
                     item.imageFile = this.byteArrayToFile(item.imageFileRequestData, item.name);
                     item.assignment = this.assignment;
@@ -76,6 +81,27 @@ import {TypeService} from "../type/type.service";
         this.route.paramMap.subscribe(params => {
             this.assignmentId = params.get('id');
         });
+    }
+
+    configureProjectHierarchy() {
+        this.addressOptions = this.assignment.project?.addresses || [];
+        this.selectedSector = this.assignment.sector;
+        this.selectedAddress = this.selectedSector
+            ? this.addressOptions.find(address => (address.sectors || []).some(sector => sector.id === this.selectedSector.id))
+            : this.addressOptions[0];
+        this.sectorOptions = this.selectedAddress?.sectors || [];
+    }
+
+    onAddressChange(event: any) {
+        this.selectedAddress = event.value;
+        this.sectorOptions = this.selectedAddress?.sectors || [];
+        this.selectedSector = null;
+        this.assignment.sector = null;
+    }
+
+    onSectorChange(event: any) {
+        this.selectedSector = event.value;
+        this.assignment.sector = this.selectedSector;
     }
 
 
@@ -183,11 +209,15 @@ import {TypeService} from "../type/type.service";
             drawing: null;
             id: string;
             project: Project;
+            address?: ProjectAddress;
+            sector?: ProjectSector;
             name: string;
         }
         assignment.id = this.assignmentId;
         assignment.name = this.assignment.name;
         assignment.project = this.assignment.project;
+        assignment.address = this.selectedAddress;
+        assignment.sector = this.selectedSector;
         this.assignmentService.saveAssignment(assignment).subscribe(res=>{
             this.messageService.add({severity:'success', summary:'Salvestamine', detail:'Salvestamine õnnestus'});
 

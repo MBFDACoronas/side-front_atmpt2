@@ -3,6 +3,7 @@ export interface Type {
 	
 	name: string;
 identifier: string;
+version: string;
 
 
 }

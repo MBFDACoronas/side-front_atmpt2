@@ -10,6 +10,8 @@ import {GroupsComponent} from "./groups/groups.component";
 import {SettingsComponent} from "./pages/settings/settings.component";
 import {AllAssignmentsComponent} from "./all-assignments/all-assignments.component";
 import {UsersComponent} from "./pages/services/user/users.component";
+import {ProjectSetupComponent} from "./project-setup/project-setup.component";
+import {TypeComponent} from "./type/type.component";
 
 const routerOptions: ExtraOptions = {
     anchorScrolling: 'enabled'
@@ -33,6 +35,8 @@ const routes: Routes = [
             { path: 'contacts', component:ContactsComponent },
             { path: 'groups', component:GroupsComponent },
             { path: 'kasutajad', component:UsersComponent },
+            { path: 'projekti-seadistamine', component:ProjectSetupComponent },
+            { path: 'ulesande-mallid', component:TypeComponent },
             { path: 'dashboard', component:DashboardComponent },
             { path: 'all-assignments', component:AllAssignmentsComponent },
             // { path: 'assignments/all', component:DashboardComponent }, // Tulevad sama komponendi alla

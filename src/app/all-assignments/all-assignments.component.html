@@ -1,18 +1,10 @@
 <div class="card">
+    <ng-container *ngIf="!isRegularUser">
+        <h5>Projektid</h5>
+        <app-project (projectSelected)="projectSelected($event)"></app-project>
+    </ng-container>
 
-    <div class="grid p-fluid">
-    </div>
-
-    <h5>Projektid</h5>
-    <app-project (projectSelected)="projectSelected($event)"></app-project>
-
-
-    <div class="col-12">
-
-
-    </div>
-
-    <h5>Ülesanded</h5>
+    <h5>Kõik ülesanded</h5>
 
     <button
         pButton
@@ -23,7 +15,6 @@
         label="Muuda">
     </button>
 
-    <!--    </div>-->
     <app-filtered-table
         [fluid]="true"
         [value]="projectList"
@@ -36,20 +27,15 @@
         [selectionMode]="'single'"
         [(selection)]="selectedRow"
         [allowDeletion]="true"
-        editMode="rowDialog"
-    >
-        <ng-template #caption>
-            <div class="flex justify-content-end">
-                <button pButton pRipple label="New" icon="pi pi-plus" class="p-button-success mr-2" (click)="openDialog(null)"></button>
-            </div>
-        </ng-template>
+        editMode="rowDialog">
     </app-filtered-table>
+
     <button
         pButton
         pRipple
         class="p-button-secondary"
+        [disabled]="isRegularUser || !selectedProject"
         (click)="createAssignment(selectedProjectId)"
-        label="Lisa Ülesanne">
+        label="Lisa ülesanne">
     </button>
-    <app-type></app-type>
 </div>

@@ -19,6 +19,18 @@ export class AssignmentService {
     return this.http.get<Assignment[]>(`/api/assignment/list-project/${projectId}`);
   }
 
+  fetchAllAssignmentsBySectorId(sectorId: string): Observable<Assignment[]>{
+    return this.http.get<Assignment[]>(`/api/assignment/list-sector/${sectorId}`);
+  }
+
+  fetchAllAssignmentsByResponsibleUserId(userId: string): Observable<Assignment[]>{
+    return this.http.get<Assignment[]>(`/api/assignment/list-responsible/${userId}`);
+  }
+
+  fetchVisibleAssignmentsForUser(userId: string): Observable<Assignment[]>{
+    return this.http.get<Assignment[]>(`/api/assignment/list-user/${userId}`);
+  }
+
   saveAssignment(assignment: Assignment): Observable<Assignment>{
     return this.http.post<Assignment>("/api/assignment/save", assignment);
   }

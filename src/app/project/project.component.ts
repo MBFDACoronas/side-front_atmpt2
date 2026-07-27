@@ -1,9 +1,11 @@
-import {ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, OnDestroy, OnInit, Output} from '@angular/core';
 import {MenuItem, MessageService, SelectItem} from "primeng/api";
 import {finalize} from "rxjs/operators";
 import {Project} from "./project.model";
 import {ProjectService} from "./project.service";
 import {CountryService} from "../demo/service/country.service";
+import {Subscription} from "rxjs";
+import {AuthService, ROLE_PEAADMIN} from "../auth/auth.service";
 
 
 
@@ -12,7 +14,7 @@ import {CountryService} from "../demo/service/country.service";
   templateUrl: './project.component.html',
   styleUrls: ['./project.component.scss']
 })
-export class ProjectComponent implements OnInit {
+export class ProjectComponent implements OnInit, OnDestroy {
 
   breadcrumbItems: MenuItem[] = [
     {label: 'TODO'}
@@ -23,7 +25,9 @@ export class ProjectComponent implements OnInit {
   loading: boolean;
   dialogueVisible: boolean = false;
   selectedRow: any;
-  @Output() projectSelected = new EventEmitter<string>();
+  @Output() projectSelected = new EventEmitter<Project>();
+  private authSubscription?: Subscription;
+  canCreateProject = false;
 
     // other methods...
 
@@ -33,6 +37,7 @@ export class ProjectComponent implements OnInit {
   constructor(
       private countryService: CountryService,
     private projectService: ProjectService,
+      private authService: AuthService,
 
   ) {
     this.project = {} as Project;
@@ -40,12 +45,23 @@ export class ProjectComponent implements OnInit {
 
 
   ngOnInit(): void {
-		this.fetchAll();
+      this.authSubscription = this.authService.currentUser$.subscribe(user => {
+          this.canCreateProject = user?.role === ROLE_PEAADMIN;
+          this.fetchAll();
+      });
+  }
+
+  ngOnDestroy(): void {
+      this.authSubscription?.unsubscribe();
   }
 
   private fetchAll() {
     this.loading = true;
-    this.projectService.fetchAllProject()
+      const request = this.authService.currentUser?.id
+          ? this.projectService.fetchProjectsForUser(this.authService.currentUser.id)
+          : this.projectService.fetchAllProject();
+
+      request
       .pipe(
         finalize(() => {
           this.loading = false;
@@ -67,6 +83,9 @@ export class ProjectComponent implements OnInit {
   }
 
   openDialog(param) {
+      if (!this.canCreateProject) {
+          return;
+      }
     this.project = {} as Project;
     if(param){
       this.project = param;

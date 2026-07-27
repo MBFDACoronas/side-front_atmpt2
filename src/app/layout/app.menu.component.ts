@@ -75,6 +75,16 @@ export class AppMenuComponent implements OnInit {
                         routerLink: ['/kasutajad']
                     },
                     {
+                        label: 'Projekti seadistamine',
+                        icon: 'pi pi-fw pi-cog',
+                        routerLink: ['/projekti-seadistamine']
+                    },
+                    {
+                        label: 'Ülesande mallid',
+                        icon: 'pi pi-fw pi-wrench',
+                        routerLink: ['/ulesande-mallid']
+                    },
+                    {
                         label: 'Lisa kontakt',
                         icon: 'pi pi-fw pi-home',
                         routerLink: ['/contact-add']

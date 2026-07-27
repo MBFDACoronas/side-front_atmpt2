@@ -15,6 +15,10 @@ export class ProjectService {
     return this.http.get<Project[]>("/api/project/list");
   }
 
+  fetchProjectsForUser(userId: string): Observable<Project[]>{
+    return this.http.get<Project[]>(`/api/project/list-user/${userId}`);
+  }
+
   saveProject(project: Project): Observable<Project>{
     return this.http.post<Project>("/api/project/save", project);
   }

@@ -42,65 +42,40 @@
     <ng-template pTemplate="content">
         <div class="formgrid grid">
             <ng-container *ngIf="selectedInteraction as interaction">
-                <div class="field col-12 md:col-3">
-                    <label for="drawingType">Type</label>
-                    <input id="drawingType"
-                           type="text"
-                           pInputText
-                           [(ngModel)]="interaction.drawingType"
-                           (ngModelChange)="redrawInteractions()">
+                <div class="field col-12">
+                    <label>Marker</label>
+                    <div class="text-900 font-medium">{{interaction.drawingType}}-{{interaction.drawingIndex}}</div>
                 </div>
 
-                <div class="field col-12 md:col-3">
-                    <label for="drawingIndex">Number</label>
-                    <input id="drawingIndex"
-                           type="number"
-                           pInputText
-                           min="1"
-                           [(ngModel)]="interaction.drawingIndex"
-                           (ngModelChange)="redrawInteractions()">
-                </div>
-
-                <div class="field col-12 md:col-3">
-                    <label for="coordX">X</label>
-                    <input id="coordX"
-                           type="number"
-                           pInputText
-                           [(ngModel)]="interaction.coordX"
-                           (ngModelChange)="redrawInteractions()">
-                </div>
-
-                <div class="field col-12 md:col-3">
-                    <label for="coordY">Y</label>
-                    <input id="coordY"
-                           type="number"
-                           pInputText
-                           [(ngModel)]="interaction.coordY"
-                           (ngModelChange)="redrawInteractions()">
-                </div>
+                <ng-container *ngIf="interactionDialogMode === 'edit'">
+                    <div class="field col-12 md:col-3">
+                        <label for="drawingType">Type</label>
+                        <input id="drawingType" type="text" pInputText [(ngModel)]="interaction.drawingType" (ngModelChange)="redrawInteractions()">
+                    </div>
+                    <div class="field col-12 md:col-3">
+                        <label for="drawingIndex">Number</label>
+                        <input id="drawingIndex" type="number" pInputText min="1" [(ngModel)]="interaction.drawingIndex" (ngModelChange)="redrawInteractions()">
+                    </div>
+                    <div class="field col-12 md:col-3">
+                        <label for="coordX">X</label>
+                        <input id="coordX" type="number" pInputText [(ngModel)]="interaction.coordX" (ngModelChange)="redrawInteractions()">
+                    </div>
+                    <div class="field col-12 md:col-3">
+                        <label for="coordY">Y</label>
+                        <input id="coordY" type="number" pInputText [(ngModel)]="interaction.coordY" (ngModelChange)="redrawInteractions()">
+                    </div>
+                </ng-container>
             </ng-container>
 
-            <app-start-add></app-start-add>
-
-            <!--            <div class="field col-12">-->
-            <!--                <label for="projectName">TODO</label>-->
-            <!--                <input pInputText-->
-            <!--                       id="projectName"-->
-            <!--                       [(ngModel)]="project.projectName"-->
-            <!--                       type="text"-->
-            <!--                       [required]="true"-->
-            <!--                       name="projectName">-->
-            <!--            </div>-->
-            <!--            <div class="field-radiobutton col-12">-->
-            <!--                <label for="valid">TODO</label>-->
-            <!--                <p-checkbox id="valid"-->
-            <!--                            (click)="setActive(project.valid)"-->
-            <!--                            [value]="project.valid"-->
-            <!--                            [(ngModel)]="project.valid"-->
-            <!--                            [binary]="true"></p-checkbox>-->
-            <!--            </div>-->
-
-
+            <div class="col-12" *ngIf="interactionDialogMode === 'create'">
+                <app-start-add
+                    #assignmentForm
+                    [embedded]="true"
+                    [project]="drawing?.assignment?.project"
+                    [sector]="drawing?.assignment?.sector"
+                    (typeSelected)="onAssignmentTypeSelected($event)">
+                </app-start-add>
+            </div>
         </div>
     </ng-template>
     <ng-template pTemplate="footer">

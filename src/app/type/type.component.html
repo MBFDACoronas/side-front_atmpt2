@@ -1,13 +1,16 @@
 <div class="pl-4 pr-4">
+    <h5>Ülesande mallid</h5>
 
-    <h5>Header</h5>
-
-
-    <div class="flex">
-        <div class="flex justify-content-end">
-            <button pButton pRipple label="Lisa" icon="pi pi-plus" class="p-button-success mr-2"
-                    (click)="openDialog(null)"></button>
-        </div>
+    <div class="flex justify-content-end mb-3">
+        <button
+            pButton
+            pRipple
+            label="Lisa"
+            icon="pi pi-plus"
+            class="p-button-success"
+            [disabled]="!canManage"
+            (click)="openDialog()">
+        </button>
     </div>
 
     <app-filtered-table
@@ -21,49 +24,35 @@
         (rowDeleted)="delete($event)"
         [selectionMode]="'single'"
         [(selection)]="selectedRow"
-        [allowDeletion]="true"
-        editMode="rowDialog"
-    >
-        <ng-template #caption>
-            <div class="flex justify-content-end">
-                <button pButton pRipple label="Lisa probleemi tüüp" icon="pi pi-plus" class="p-button-success mr-2" (click)="openDialog(null)"></button>
-            </div>
-        </ng-template>
+        [allowDeletion]="canManage"
+        editMode="rowDialog">
     </app-filtered-table>
-
-
 </div>
 
-<p-dialog [(visible)]="dialogueVisible"
-          (visibleChange)="onVisibleChange($event)"
-          [style]="{width: '800px'}"
-          [modal]="true"
-          [draggable]="false"
-          styleClass="p-fluid"
->
+<p-dialog
+    [(visible)]="dialogueVisible"
+    (visibleChange)="onVisibleChange($event)"
+    [style]="{width: '640px'}"
+    [modal]="true"
+    [draggable]="false"
+    styleClass="p-fluid">
     <ng-template pTemplate="header">
-        <h2>Salvestamine</h2>
+        <h2>Ülesande mall</h2>
     </ng-template>
     <ng-template pTemplate="content">
         <div class="formgrid grid">
-
-
-            <div class="field col-12">
-                <label for="name">Nimi</label>
-                <input pInputText id="name" [(ngModel)]="type.name" type="text"
-                       [required]="true"
-                       name="name">
-            </div>
             <div class="field col-12">
                 <label for="identifier">Identifikaator</label>
-                <input pInputText id="identifier" [(ngModel)]="type.identifier" type="text"
-                       [required]="true"
-                       name="identifier">
+                <input pInputText id="identifier" [(ngModel)]="type.identifier" type="text" required name="identifier">
             </div>
-
-
-
-
+            <div class="field col-12">
+                <label for="name">Nimi</label>
+                <input pInputText id="name" [(ngModel)]="type.name" type="text" required name="name">
+            </div>
+            <div class="field col-12">
+                <label for="version">Versioon</label>
+                <input pInputText id="version" [(ngModel)]="type.version" type="text" name="version">
+            </div>
         </div>
     </ng-template>
 
@@ -74,44 +63,30 @@
                 pRipple
                 label="Tühista"
                 icon="pi pi-times"
-                id="cancel-btn"
                 class="p-button p-button-link"
-                (click)="dialogueVisible = false; this.selectedRow = null;"
-            ></button>
+                (click)="dialogueVisible = false; selectedRow = null">
+            </button>
             <div>
                 <button
                     pButton
                     pRipple
-                    [label]="'Kustuta'"
-                    id="delete-btn"
-                    icon="pi pi-check"
+                    label="Kustuta"
+                    icon="pi pi-trash"
                     class="p-button p-button-danger mr-2"
-                    (click)="delete(type)"
-                ></button>
+                    [disabled]="!canManage || !type.id"
+                    (click)="delete(type)">
+                </button>
                 <button
                     pButton
                     pRipple
-                    [label]="'Salvesta'"
-                    id="save-btn"
+                    label="Salvesta"
                     icon="pi pi-check"
                     class="p-button p-button-success"
-                    (click)="save()"
-                ></button>
+                    [disabled]="!canManage"
+                    (click)="save()">
+                </button>
             </div>
         </div>
     </ng-template>
 </p-dialog>
 <p-confirmDialog></p-confirmDialog>
-
-
-
-<!--&lt;!&ndash;DROPDOWN TODO delete&ndash;&gt;-->
-<!--<p-dropdown-->
-<!--    inputId="dropdown"-->
-<!--    id="dropdown"-->
-<!--    [autoDisplayFirst]="false"-->
-<!--    [options]="typeList"-->
-<!--    [(ngModel)]="type"-->
-<!--    (onChange)="typeChange($event)"-->
-<!--    optionLabel="name"-->
-<!--&gt;</p-dropdown>-->

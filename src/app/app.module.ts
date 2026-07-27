@@ -51,6 +51,7 @@ import {AllAssignmentsComponent} from "./all-assignments/all-assignments.compone
 import {TypeComponent} from "./type/type.component";
 import {ConfirmDialogModule} from "primeng/confirmdialog";
 import {UsersComponent} from "./pages/services/user/users.component";
+import {ProjectSetupComponent} from "./project-setup/project-setup.component";
 
 @NgModule({
     declarations: [
@@ -68,6 +69,7 @@ import {UsersComponent} from "./pages/services/user/users.component";
         TypeComponent,
         ImageDialogComponent,
         UsersComponent,
+        ProjectSetupComponent,
         StartAddComponent
     ],
     imports: [

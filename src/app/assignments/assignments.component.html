@@ -30,6 +30,30 @@
         ></p-dropdown>
 
     </div>
+    <div class="field mb-4 col-12 md:col-6">
+        <h5>Aadress</h5>
+        <p-dropdown
+            inputId="assignmentAddress"
+            [autoDisplayFirst]="false"
+            [options]="addressOptions"
+            [(ngModel)]="selectedAddress"
+            (onChange)="onAddressChange($event)"
+            optionLabel="name"
+            placeholder="Vali aadress">
+        </p-dropdown>
+    </div>
+    <div class="field mb-4 col-12 md:col-6">
+        <h5>Sektor</h5>
+        <p-dropdown
+            inputId="assignmentSector"
+            [autoDisplayFirst]="false"
+            [options]="sectorOptions"
+            [(ngModel)]="selectedSector"
+            (onChange)="onSectorChange($event)"
+            optionLabel="name"
+            placeholder="Vali sektor">
+        </p-dropdown>
+    </div>
 <!--    <div class="field mb-4 col-12">-->
 <!--        <h5>Teema</h5>-->
 <!--        <p-autoComplete id="teema" [(ngModel)]="selectedVastutavad" [suggestions]="filteredVastutavad"-->
