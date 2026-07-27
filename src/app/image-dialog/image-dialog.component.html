@@ -17,7 +17,7 @@
          (pointerdown)="onPointerDown($event)"
          (pointermove)="onPointerMove($event)"
          (pointerup)="onPointerUp($event)"
-         (pointercancel)="onPointerUp($event)">
+         (pointercancel)="onPointerCancel($event)">
         <canvas #imageCanvas
                 [style.transform]="canvasTransform"
                 [class.dragging]="isDragging"></canvas>
@@ -28,18 +28,57 @@
 
 
 
-<p-dialog [(visible)]="dialogueVisible"
+<p-dialog [visible]="dialogueVisible"
           (visibleChange)="onVisibleChange($event)"
           [style]="{width: '800px'}"
           [modal]="true"
           [draggable]="false"
+          [closable]="!isSavingInteraction"
           styleClass="p-fluid"
 >
     <ng-template pTemplate="header">
-        <h2>Salvestamine</h2>
+        <h2>{{ interactionDialogMode === 'edit' ? 'Markeri muutmine' : 'Salvestamine' }}</h2>
     </ng-template>
     <ng-template pTemplate="content">
         <div class="formgrid grid">
+            <ng-container *ngIf="selectedInteraction as interaction">
+                <div class="field col-12 md:col-3">
+                    <label for="drawingType">Type</label>
+                    <input id="drawingType"
+                           type="text"
+                           pInputText
+                           [(ngModel)]="interaction.drawingType"
+                           (ngModelChange)="redrawInteractions()">
+                </div>
+
+                <div class="field col-12 md:col-3">
+                    <label for="drawingIndex">Number</label>
+                    <input id="drawingIndex"
+                           type="number"
+                           pInputText
+                           min="1"
+                           [(ngModel)]="interaction.drawingIndex"
+                           (ngModelChange)="redrawInteractions()">
+                </div>
+
+                <div class="field col-12 md:col-3">
+                    <label for="coordX">X</label>
+                    <input id="coordX"
+                           type="number"
+                           pInputText
+                           [(ngModel)]="interaction.coordX"
+                           (ngModelChange)="redrawInteractions()">
+                </div>
+
+                <div class="field col-12 md:col-3">
+                    <label for="coordY">Y</label>
+                    <input id="coordY"
+                           type="number"
+                           pInputText
+                           [(ngModel)]="interaction.coordY"
+                           (ngModelChange)="redrawInteractions()">
+                </div>
+            </ng-container>
 
             <app-start-add></app-start-add>
 
@@ -72,7 +111,8 @@
             icon="pi pi-times"
             id="cancel-btn"
             class="p-button p-button-danger"
-            (click)="dialogueVisible = false"
+            [disabled]="isSavingInteraction"
+            (click)="cancelInteractionEdit()"
         ></button>
         <button
             pButton
@@ -81,6 +121,7 @@
             id="save-btn"
             icon="pi pi-check"
             class="p-button p-button-success"
+            [disabled]="isSavingInteraction"
             (click)="saveAssignmentDetails()"
         ></button>
     </ng-template>

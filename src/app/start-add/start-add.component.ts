@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import {PdfService} from "./pdfService";
+import {UserService} from "../pages/services/user/user.service";
 
 @Component({
     selector: 'app-start-add',
@@ -13,15 +14,17 @@ export class StartAddComponent implements OnInit {
     selectedVastutavad: any[] = [];
     filteredVastutavad: any[] = [];
     vastutavadList: any[] = [];
+    companyOptions: string[] = [];
+    selectedCompany: string;
     images: string[] = [];
     selectedImage: string;
     displayImageDialog = false;
     dynamicWidth: string = '80vw';
     dynamicHeight: string = '80vh';
-    constructor(private pdfService: PdfService, private http: HttpClient) {}
+    constructor(private pdfService: PdfService, private http: HttpClient, private userService: UserService) {}
 
     ngOnInit(): void {
-        this.getVastutavad();
+        this.getCompanies();
     }
 
     openCameraDialog() {
@@ -97,8 +100,13 @@ export class StartAddComponent implements OnInit {
         this.filteredVastutavad = filtered;
     }
 
-    private getVastutavad() {
-        // Implement the logic to fetch the list of vastutavad
+    private getCompanies() {
+        this.userService.fetchAllUser().subscribe(users => {
+            this.companyOptions = Array.from(new Set((users || [])
+                .map(user => user.company)
+                .filter(company => !!company && !!company.trim())))
+                .sort((a, b) => a.localeCompare(b));
+        });
     }
 
     onImageClick(imageUrl: string): void {

@@ -10,6 +10,10 @@ import {
     Output, EventEmitter
 } from '@angular/core';
 import {DrawingInteraction} from "../drawing-interaction/drawing-interaction.model";
+import {DrawingInteractionService} from "../drawing-interaction/drawing-interaction.service";
+import {MessageService} from "primeng/api";
+import {Drawing} from "../drawing/drawing.model";
+import {DrawingService} from "../drawing/drawing.service";
 
 @Component({
     selector: 'app-image-dialog',
@@ -19,6 +23,8 @@ import {DrawingInteraction} from "../drawing-interaction/drawing-interaction.mod
 export class ImageDialogComponent implements OnInit, OnChanges, AfterViewInit {
     @Input() imageUrl: any;
     @Input() type: string;
+    @Input() drawingId: string;
+    @Input() drawing: Drawing;
     dialogueVisible: boolean = false;
 
     @Output() imageLoaded = new EventEmitter<{ width: number, height: number }>();
@@ -36,7 +42,21 @@ export class ImageDialogComponent implements OnInit, OnChanges, AfterViewInit {
     private dragStartOffsetX = 0;
     private dragStartOffsetY = 0;
     private hasDragged = false;
+    private dragMode: 'pan' | 'marker' | null = null;
+    private markerDragOffsetX = 0;
+    private markerDragOffsetY = 0;
+    selectedInteraction: DrawingInteraction | null = null;
+    interactionDialogMode: 'create' | 'edit' = 'create';
+    isSavingInteraction = false;
+    private selectedInteractionSnapshot: DrawingInteraction | null = null;
     @Input() drawingInteractions!: DrawingInteraction[];
+
+    constructor(
+        private drawingInteractionService: DrawingInteractionService,
+        private drawingService: DrawingService,
+        private messageService: MessageService,
+    ) {
+    }
 
     get canvasTransform(): string {
         return `translate(${this.offsetX}px, ${this.offsetY}px) scale(${this.zoom})`;
@@ -96,7 +116,7 @@ export class ImageDialogComponent implements OnInit, OnChanges, AfterViewInit {
     }
 
     onPointerDown(event: PointerEvent): void {
-        if (!this.loadedImage) {
+        if (!this.loadedImage || event.button !== 0) {
             return;
         }
 
@@ -104,8 +124,22 @@ export class ImageDialogComponent implements OnInit, OnChanges, AfterViewInit {
         this.hasDragged = false;
         this.pointerStartX = event.clientX;
         this.pointerStartY = event.clientY;
-        this.dragStartOffsetX = this.offsetX;
-        this.dragStartOffsetY = this.offsetY;
+        const imagePoint = this.getImagePoint(event);
+        const hitInteraction = this.findInteractionAtPoint(imagePoint.x, imagePoint.y);
+
+        if (hitInteraction) {
+            this.dragMode = 'marker';
+            this.selectedInteraction = hitInteraction;
+            this.selectedInteractionSnapshot = this.cloneInteraction(hitInteraction);
+            this.interactionDialogMode = 'edit';
+            this.markerDragOffsetX = imagePoint.x - hitInteraction.coordX;
+            this.markerDragOffsetY = imagePoint.y - hitInteraction.coordY;
+        } else {
+            this.dragMode = 'pan';
+            this.dragStartOffsetX = this.offsetX;
+            this.dragStartOffsetY = this.offsetY;
+        }
+
         (event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
     }
 
@@ -118,6 +152,15 @@ export class ImageDialogComponent implements OnInit, OnChanges, AfterViewInit {
         const deltaY = event.clientY - this.pointerStartY;
         if (Math.abs(deltaX) > 3 || Math.abs(deltaY) > 3) {
             this.hasDragged = true;
+        }
+
+        if (this.dragMode === 'marker' && this.selectedInteraction) {
+            const imagePoint = this.getImagePoint(event);
+            const canvas = this.imageCanvas.nativeElement;
+            this.selectedInteraction.coordX = this.clamp(imagePoint.x - this.markerDragOffsetX, 0, canvas.width);
+            this.selectedInteraction.coordY = this.clamp(imagePoint.y - this.markerDragOffsetY, 0, canvas.height);
+            this.redrawCanvas();
+            return;
         }
 
         this.offsetX = this.dragStartOffsetX + deltaX;
@@ -135,9 +178,37 @@ export class ImageDialogComponent implements OnInit, OnChanges, AfterViewInit {
             target.releasePointerCapture(event.pointerId);
         }
 
-        if (!this.hasDragged) {
+        if (this.dragMode === 'marker') {
+            this.dialogueVisible = true;
+            this.dragMode = null;
+            return;
+        }
+
+        if (this.dragMode === 'pan' && !this.hasDragged) {
             this.addMarkerFromPointer(event);
         }
+
+        this.dragMode = null;
+    }
+
+    onPointerCancel(event: PointerEvent): void {
+        if (!this.isDragging) {
+            return;
+        }
+
+        this.isDragging = false;
+        const target = event.currentTarget as HTMLElement;
+        if (target.hasPointerCapture(event.pointerId)) {
+            target.releasePointerCapture(event.pointerId);
+        }
+
+        if (this.dragMode === 'marker') {
+            this.restoreSelectedInteraction();
+            this.clearInteractionSelection();
+            this.redrawCanvas();
+        }
+
+        this.dragMode = null;
     }
 
     onWheel(event: WheelEvent): void {
@@ -208,9 +279,13 @@ export class ImageDialogComponent implements OnInit, OnChanges, AfterViewInit {
     }
 
     private addMarkerFromPointer(event: PointerEvent): void {
-        const rect = this.imageCanvas.nativeElement.getBoundingClientRect();
-        const x = (event.clientX - rect.left) / this.zoom;
-        const y = (event.clientY - rect.top) / this.zoom;
+        if (!this.drawingInteractions) {
+            this.drawingInteractions = [];
+        }
+
+        const point = this.getImagePoint(event);
+        const x = point.x;
+        const y = point.y;
         const canvas = this.imageCanvas.nativeElement;
 
         if (x < 0 || y < 0 || x > canvas.width || y > canvas.height) {
@@ -218,29 +293,27 @@ export class ImageDialogComponent implements OnInit, OnChanges, AfterViewInit {
         }
 
         const index = this.getNextDrawingIndex();
-        this.drawCircle(x, y, index);
+        const drawingInteraction = this.createInteraction(x, y, index);
+        this.drawingInteractions.push(drawingInteraction);
+        this.selectedInteraction = drawingInteraction;
+        this.selectedInteractionSnapshot = this.cloneInteraction(drawingInteraction);
+        this.interactionDialogMode = 'create';
+        this.dialogueVisible = true;
+        this.redrawCanvas();
     }
 
 
     drawCircle(x: number, y: number, index: number, addInteraction: boolean = true): void {
-        this.drawCircleMarker(x, y, index);
-
         if (addInteraction) {
             if (!this.drawingInteractions) {
                 this.drawingInteractions = [];
             }
 
-            const drawingInteraction: DrawingInteraction = {
-                coordX: x,
-                coordY: y,
-                drawingIndex: index,
-                drawingType: this.type,
-                drawing: "0", // Assuming you have the drawing ID available
-                id: null, // Or generate a UUID if needed
-            };
-            this.dialogueVisible = true;
+            const drawingInteraction = this.createInteraction(x, y, index);
             this.drawingInteractions.push(drawingInteraction);
         }
+
+        this.redrawCanvas();
     }
 
     private redrawCanvas(): void {
@@ -252,12 +325,16 @@ export class ImageDialogComponent implements OnInit, OnChanges, AfterViewInit {
 
         this.context.drawImage(this.loadedImage, 0, 0);
         (this.drawingInteractions || []).forEach(item => {
-            this.drawCircleMarker(item.coordX, item.coordY, item.drawingIndex);
+            this.drawCircleMarker(item.coordX, item.coordY, item.drawingIndex, item.drawingType);
         });
     }
 
-    private drawCircleMarker(x: number, y: number, index: number): void {
-        const text = this.type + index.toString();
+    redrawInteractions(): void {
+        this.redrawCanvas();
+    }
+
+    private drawCircleMarker(x: number, y: number, index: number, drawingType: string = this.type): void {
+        const text = (drawingType || this.type) + index.toString();
         this.context.font = '12px bold Arial';
         const textWidth = this.context.measureText(text).width;
         const padding = 10; // Padding around the text
@@ -292,12 +369,186 @@ export class ImageDialogComponent implements OnInit, OnChanges, AfterViewInit {
         return maxIndex + 1;
     }
 
+    private createInteraction(x: number, y: number, index: number): DrawingInteraction {
+        return {
+            coordX: x,
+            coordY: y,
+            drawingIndex: index,
+            drawingType: this.type,
+            drawing: this.getCurrentDrawingId() || "0",
+            id: null,
+        };
+    }
+
+    private getImagePoint(event: PointerEvent): { x: number, y: number } {
+        const rect = this.imageCanvas.nativeElement.getBoundingClientRect();
+        return {
+            x: (event.clientX - rect.left) / this.zoom,
+            y: (event.clientY - rect.top) / this.zoom,
+        };
+    }
+
+    private findInteractionAtPoint(x: number, y: number): DrawingInteraction | null {
+        const interactions = this.drawingInteractions || [];
+        for (let i = interactions.length - 1; i >= 0; i--) {
+            const bounds = this.getMarkerBounds(interactions[i]);
+            if (x >= bounds.left && x <= bounds.right && y >= bounds.top && y <= bounds.bottom) {
+                return interactions[i];
+            }
+        }
+
+        return null;
+    }
+
+    private getMarkerBounds(interaction: DrawingInteraction): { left: number, right: number, top: number, bottom: number } {
+        this.context.font = '12px bold Arial';
+        const text = (interaction.drawingType || this.type) + interaction.drawingIndex.toString();
+        const padding = 10;
+        const rectWidth = this.context.measureText(text).width + padding * 2;
+        const rectHeight = 20;
+
+        return {
+            left: interaction.coordX - rectWidth / 2,
+            right: interaction.coordX + rectWidth / 2,
+            top: interaction.coordY - rectHeight / 2,
+            bottom: interaction.coordY + rectHeight / 2,
+        };
+    }
+
+    private cloneInteraction(interaction: DrawingInteraction): DrawingInteraction {
+        return {...interaction};
+    }
+
+    private restoreSelectedInteraction(): void {
+        if (this.selectedInteraction && this.selectedInteractionSnapshot) {
+            Object.assign(this.selectedInteraction, this.selectedInteractionSnapshot);
+        }
+    }
+
+    private clearInteractionSelection(): void {
+        this.selectedInteraction = null;
+        this.selectedInteractionSnapshot = null;
+        this.interactionDialogMode = 'create';
+        this.isSavingInteraction = false;
+    }
+
+    private removeSelectedInteraction(): void {
+        if (!this.selectedInteraction || !this.drawingInteractions) {
+            return;
+        }
+
+        const index = this.drawingInteractions.indexOf(this.selectedInteraction);
+        if (index >= 0) {
+            this.drawingInteractions.splice(index, 1);
+        }
+    }
+
+    private normalizeInteraction(interaction: DrawingInteraction): void {
+        const canvas = this.imageCanvas.nativeElement;
+        interaction.coordX = this.clamp(Number(interaction.coordX) || 0, 0, canvas.width);
+        interaction.coordY = this.clamp(Number(interaction.coordY) || 0, 0, canvas.height);
+        interaction.drawingIndex = Math.max(1, Math.round(Number(interaction.drawingIndex) || this.getNextDrawingIndex()));
+        interaction.drawingType = interaction.drawingType || this.type;
+        interaction.drawing = this.getInteractionDrawingId(interaction) || this.getCurrentDrawingId() || "0";
+    }
+
+    private getInteractionDrawingId(interaction: DrawingInteraction): string {
+        const drawing = interaction.drawing as any;
+        return this.getCurrentDrawingId() || (typeof drawing === 'string' ? drawing : drawing?.id);
+    }
+
+    private getCurrentDrawingId(): string {
+        return this.drawingId || this.drawing?.id;
+    }
+
+    private clamp(value: number, min: number, max: number): number {
+        return Math.min(max, Math.max(min, value));
+    }
+
 
     onVisibleChange($event: boolean) {
+        if ($event) {
+            this.dialogueVisible = true;
+            return;
+        }
 
+        if (this.selectedInteraction) {
+            this.cancelInteractionEdit();
+            return;
+        }
+
+        this.dialogueVisible = false;
     }
 
     saveAssignmentDetails() {
+        if (!this.selectedInteraction) {
+            this.dialogueVisible = false;
+            return;
+        }
 
+        const interaction = this.selectedInteraction;
+        this.normalizeInteraction(interaction);
+        this.redrawCanvas();
+        const drawingId = this.getInteractionDrawingId(interaction);
+
+        this.isSavingInteraction = true;
+        if (!drawingId || drawingId === "0") {
+            this.saveDrawingBeforeInteraction(interaction);
+            return;
+        }
+
+        this.saveInteraction(interaction, drawingId);
+    }
+
+    private saveDrawingBeforeInteraction(interaction: DrawingInteraction): void {
+        if (!this.drawing) {
+            this.dialogueVisible = false;
+            this.clearInteractionSelection();
+            return;
+        }
+
+        this.drawingService.saveDrawing(this.drawing).subscribe({
+            next: (savedDrawing) => {
+                this.drawing.id = savedDrawing.id;
+                this.drawingId = savedDrawing.id;
+                this.saveInteraction(interaction, savedDrawing.id);
+            },
+            error: (error) => {
+                console.error('Error saving drawing before interaction:', error);
+                this.messageService.add({severity: 'error', summary: 'Salvestamine', detail: 'Joonise salvestamine ebaonnestus'});
+                this.isSavingInteraction = false;
+            }
+        });
+    }
+
+    private saveInteraction(interaction: DrawingInteraction, drawingId: string): void {
+        interaction.drawing = drawingId;
+        this.drawingInteractionService.saveDrawingInteraction(interaction).subscribe({
+            next: (savedInteraction) => {
+                Object.assign(interaction, savedInteraction);
+                interaction.drawing = drawingId;
+                this.messageService.add({severity: 'success', summary: 'Salvestamine', detail: 'Marker salvestatud'});
+                this.dialogueVisible = false;
+                this.clearInteractionSelection();
+                this.redrawCanvas();
+            },
+            error: (error) => {
+                console.error('Error saving drawing interaction:', error);
+                this.messageService.add({severity: 'error', summary: 'Salvestamine', detail: 'Markeri salvestamine ebaonnestus'});
+                this.isSavingInteraction = false;
+            }
+        });
+    }
+
+    cancelInteractionEdit(): void {
+        if (this.interactionDialogMode === 'create') {
+            this.removeSelectedInteraction();
+        } else {
+            this.restoreSelectedInteraction();
+        }
+
+        this.dialogueVisible = false;
+        this.clearInteractionSelection();
+        this.redrawCanvas();
     }
 }

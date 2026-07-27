@@ -35,32 +35,38 @@
                 <button pButton type="button" icon="pi pi-cog" class="p-button-text p-button-secondary text-color-secondary p-button-rounded flex-shrink-0" (click)="onConfigButtonClick()"></button>
             </li>
 
-            <li #profile class="profile-item topbar-item " >
+            <li #profile class="profile-item topbar-item " *ngIf="currentUser$ | async as currentUser; else loggedOutProfile">
                 <a pStyleClass="@next" enterFromClass="ng-hidden" enterActiveClass="px-scalein" leaveToClass="ng-hidden" leaveActiveClass="px-fadeout" [hideOnOutsideClick]="true" pRipple class="cursor-pointer">
-                    <img class="border-circle" src="assets/demo/images/avatar/square/avatar-m-1.jpg">
+                    <span class="inline-flex align-items-center justify-content-center border-circle bg-primary text-white font-bold" style="width: 2.5rem; height: 2.5rem;">{{ getInitials(currentUser) }}</span>
                 </a>
 
                 <ul class="topbar-menu active-topbar-menu p-4 w-15rem z-5 ng-hidden border-round">
                     <li role="menuitem" class="m-0 mb-3">
-                        <a href="#" class="flex align-items-center hover:text-primary-500 transition-duration-200" pStyleClass="@grandparent" enterFromClass="ng-hidden" enterActiveClass="px-scalein" leaveToClass="ng-hidden" leaveActiveClass="px-fadeout">
-                            <i class="pi pi-fw pi-lock mr-2"></i>
-                            <span>Privacy</span>
-                        </a>
+                        <div class="flex flex-column">
+                            <span class="font-bold">{{ getUserDisplayName(currentUser) }}</span>
+                            <small class="text-color-secondary">{{ currentUser.role || 'Roll puudub' }}</small>
+                        </div>
                     </li>
                     <li role="menuitem" class="m-0 mb-3">
-                        <a href="#" class="flex align-items-center hover:text-primary-500 transition-duration-200" pStyleClass="@grandparent" enterFromClass="ng-hidden" enterActiveClass="px-scalein" leaveToClass="ng-hidden" leaveActiveClass="px-fadeout">
-                            <i class="pi pi-fw pi-cog mr-2"></i>
-                            <span>Settings</span>
+                        <a routerLink="/kasutajad" class="flex align-items-center hover:text-primary-500 transition-duration-200" pStyleClass="@grandparent" enterFromClass="ng-hidden" enterActiveClass="px-scalein" leaveToClass="ng-hidden" leaveActiveClass="px-fadeout">
+                            <i class="pi pi-fw pi-users mr-2"></i>
+                            <span>Kasutajad</span>
                         </a>
                     </li>
                     <li role="menuitem" class="m-0">
-                        <a href="#" class="flex align-items-center hover:text-primary-500 transition-duration-200" pStyleClass="@grandparent" enterFromClass="ng-hidden" enterActiveClass="px-scalein" leaveToClass="ng-hidden" leaveActiveClass="px-fadeout">
+                        <button type="button" class="p-link flex align-items-center hover:text-primary-500 transition-duration-200" (click)="logout()" pStyleClass="@grandparent" enterFromClass="ng-hidden" enterActiveClass="px-scalein" leaveToClass="ng-hidden" leaveActiveClass="px-fadeout">
                             <i class="pi pi-fw pi-sign-out mr-2"></i>
-                            <span>Logout</span>
-                        </a>
+                            <span>Logi välja</span>
+                        </button>
                     </li>
                 </ul>
             </li>
+
+            <ng-template #loggedOutProfile>
+                <li class="profile-item topbar-item">
+                    <button pButton type="button" icon="pi pi-user" class="p-button-text p-button-secondary text-color-secondary p-button-rounded flex-shrink-0" (click)="openLoginDialog()"></button>
+                </li>
+            </ng-template>
       
             <li class="right-panel-button relative hidden lg:block">
                 <button pButton  type="button" label="Today" style="width:5.7rem" icon="pi pi-bookmark" 
@@ -70,3 +76,32 @@
         </ul>
     </div>
 </div>
+
+<p-dialog [(visible)]="loginDialogVisible" [style]="{width: '560px'}" [modal]="true" [draggable]="false" header="Logi sisse">
+    <div class="login-dialog-content">
+        <div class="field">
+            <label for="personalCodeLogin">Isikukood</label>
+            <div class="p-inputgroup">
+                <input id="personalCodeLogin" type="text" pInputText [(ngModel)]="personalCode" (keydown.enter)="loginByPersonalCode()">
+                <button pButton type="button" label="Logi sisse" icon="pi pi-sign-in" (click)="loginByPersonalCode()"></button>
+            </div>
+            <small class="p-error" *ngIf="loginError">{{ loginError }}</small>
+        </div>
+
+        <div class="mt-4">
+            <h5 class="mt-0 mb-3">Olemasolevad kasutajad</h5>
+            <div class="flex flex-column gap-2" *ngIf="users.length; else noUsers">
+                <div class="flex align-items-center justify-content-between gap-3 border-1 surface-border border-round p-2" *ngFor="let user of users">
+                    <div class="flex flex-column">
+                        <span class="font-bold">{{ getUserDisplayName(user) }}</span>
+                        <small>{{ user.role || 'Roll puudub' }} · {{ user.code || 'Isikukood puudub' }}</small>
+                    </div>
+                    <button pButton type="button" label="Logi sisse" class="p-button-text" (click)="loginAs(user)"></button>
+                </div>
+            </div>
+            <ng-template #noUsers>
+                <p>Kasutajaid ei leitud.</p>
+            </ng-template>
+        </div>
+    </div>
+</p-dialog>

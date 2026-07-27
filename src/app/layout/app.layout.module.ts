@@ -22,6 +22,7 @@ import { RouterModule } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { StyleClassModule } from 'primeng/styleclass';
 import { CalendarModule } from 'primeng/calendar';
+import {DialogModule} from 'primeng/dialog';
 
 @NgModule({
     declarations: [
@@ -50,6 +51,7 @@ import { CalendarModule } from 'primeng/calendar';
         AppConfigModule,
         StyleClassModule,
         CalendarModule,
+        DialogModule,
 
     ]
 })

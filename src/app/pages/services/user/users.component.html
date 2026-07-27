@@ -1,163 +1,207 @@
-<div class="grid">
-    <div class="col-12">
-        <div class="card">
-            <h5>Filter Menu</h5>
-            <p-table #dt1 [value]="users" dataKey="id" [rows]="10" [loading]="loading" [rowHover]="true" styleClass="p-datatable-gridlines" [paginator]="true" [globalFilterFields]="['name','country.name','representative.name','status']" responsiveLayout="scroll">
-                <ng-template pTemplate="caption">
-                    <div class="flex justify-content-between flex-column sm:flex-row">
-                        <button pButton label="Clear" class="p-button-outlined mb-2" icon="pi pi-filter-slash" (click)="clear(dt1)"></button>
-                        <span class="p-input-icon-left mb-2">
-							<i class="pi pi-search"></i>
-							<input pInputText type="text" #filter (input)="dt1.filterGlobal($event.target.value, 'contains')" placeholder="Search Keyword" class="w-full"/>
-						</span>
-                    </div>
-                </ng-template>
-                <ng-template pTemplate="header">
-                    <tr>
-                        <th>
-                            <div class="flex justify-content-between align-items-center">
-                                Eesnimi
-                                <p-columnFilter type="text" field="name" display="menu" placeholder="Search by name"></p-columnFilter>
-                            </div>
-                        </th>
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
 
-                        <th>
-                            <div class="flex justify-content-between align-items-center">
-                                Perenimi
-                                <p-columnFilter type="text" field="name" display="menu" placeholder="Search by name"></p-columnFilter>
-                            </div>
-                        </th>
-
-                        <th>
-                            <div class="flex justify-content-between align-items-center">
-                                E-post
-                                <p-columnFilter type="text" field="name" display="menu" placeholder="Search by name"></p-columnFilter>
-                            </div>
-                        </th>
-
-                        <th>
-                            <div class="flex justify-content-between align-items-center">
-                                Isikukood
-                                <p-columnFilter type="text" field="name" display="menu" placeholder="Search by name"></p-columnFilter>
-                            </div>
-                        </th>
-                        <th>
-                            <div class="flex justify-content-between align-items-center">
-                                Tegevused
-                                <p-columnFilter type="text" field="name" display="menu" placeholder="Search by name"></p-columnFilter>
-                            </div>
-                        </th>
-
-
-                    </tr>
-                </ng-template>
-                <ng-template pTemplate="body" let-user>
-                    <tr>
-                        <td style="min-width: 12rem;">
-                            {{user.name}}
-                        </td>
-
-                        <td style="min-width: 12rem;">
-
-
-                            <p-avatar [label]="getInitials(user)"  styleClass="mr-2" size="xlarge" shape="circle" ></p-avatar>
-
-                        </td>
-
-                        <td style="min-width: 12rem;">
-                            {{user.email}}
-
-<!--                            <button pButton pRipple type="button" icon="pi pi-bars" class="p-button-rounded p-button-secondary mr-2 mb-2" title="Muuda" label="Muuda" [routerLink]="['/involvement-detail', {id: customer.id}]"-->
-
-<!--                            ></button>-->
-
-                        </td>
-
-                        <td style="min-width: 12rem;">
-                            {{user.code}}
-
-
-                        </td>
-
-                        <td style="min-width: 12rem;">
-
-                            <button pButton pRipple type="button" icon="pi pi-bars" class="p-button-rounded p-button-secondary mr-2 mb-2" title="Muuda" label="Muuda" (click)="openModal(user)"
-
-                            ></button>
-
-                        </td>
-
-<!--                        <td style="min-width: 14rem;">-->
-<!--                            <img [alt]="customer.representative.name" src="assets/demo/images/avatar/{{customer.representative.image}}" width="32" style="vertical-align: middle"/>-->
-<!--                            <span class="image-text ml-2">{{customer.representative.name}}</span>-->
-<!--                        </td>-->
-<!--                        <td style="min-width: 10rem;">-->
-<!--                            {{customer.date | date: 'MM/dd/yyyy'}}-->
-<!--                        </td>-->
-<!--                        <td style="min-width: 10rem;">-->
-<!--                            {{customer.balance | currency:'USD':'symbol'}}-->
-<!--                        </td>-->
-<!--                        <td style="min-width: 12rem;">-->
-<!--                            <span [class]="'customer-badge status-' + customer.status">{{customer.status}}</span>-->
-<!--                        </td>-->
-<!--                        <td style="min-width: 12rem; ">-->
-<!--                            <p-progressBar [value]="customer.activity" [showValue]="false"></p-progressBar>-->
-<!--                        </td>-->
-<!--                        <td class="text-center" style="min-width: 8rem;">-->
-<!--                            <i class="pi" [ngClass]="{'true-icon pi-check-circle text-green-500': customer.verified, 'false-icon pi-times-circle text-pink-500 ': !customer.verified}"></i>-->
-<!--                        </td>-->
-                    </tr>
-                </ng-template>
-                <ng-template pTemplate="emptymessage">
-                    <tr>
-                        <td colspan="7">No customers found.</td>
-                    </tr>
-                </ng-template>
-                <ng-template pTemplate="loadingbody">
-                    <tr>
-                        <td colspan="7">Loading customers data. Please wait.</td>
-                    </tr>
-                </ng-template>
-            </p-table>
+<div class="users-page">
+    <div class="page-toolbar">
+        <div>
+            <h1>Kasutajad</h1>
+            <p *ngIf="currentUser">Sisse logitud: {{ getUserDisplayName(currentUser) }} ({{ currentUser.role }})</p>
+            <p *ngIf="!currentUser">Testrežiim: logi ülevalt paremalt kasutajana sisse.</p>
         </div>
-
+        <div class="toolbar-actions">
+            <button pButton pRipple type="button" icon="pi pi-plus" label="Lisa rühm" [disabled]="!canManageAnyUser()" (click)="openNewGroupDialog()"></button>
+            <button pButton pRipple type="button" icon="pi pi-user-plus" label="Lisa kasutaja" class="p-button-secondary" [disabled]="!canManageAnyUser()" (click)="openNewUserDialog()"></button>
+        </div>
     </div>
 
-    <p-dialog [(visible)]="dialogVisible" [style]="{width: '450px'}" header="Uue kausta lisamine" [modal]="true"
-              class="p-fluid" (submit)="save()">
-        <ng-template pTemplate="content">
-            <div class="field">
-                <label for="name">Eesnimi</label>
-                <input type="text" pInputText id="name" [(ngModel)]="userModel.name" required
-                       />
-<!--                <small class="ng-dirty ng-invalid" *ngIf="submitted && !drawingsFolder.path">Name is required.</small>-->
-            </div>
-            <div class="field">
-                <label for="lastName">Perenimi</label>
-                <input type="text" pInputText id="lastName" [(ngModel)]="userModel.lastName" required autofocus
-                       />
-<!--                <small class="ng-dirty ng-invalid" *ngIf="submitted && !drawingsFolder.path">Name is required.</small>-->
-            </div>
-            <div class="field">
-                <label for="email">E-post</label>
-                <input type="text" pInputText id="email" [(ngModel)]="userModel.email" required autofocus
-                       />
-<!--                <small class="ng-dirty ng-invalid" *ngIf="submitted && !drawingsFolder.path">Name is required.</small>-->
-            </div>
-            <div class="field">
-                <label for="code">Isikukood</label>
-                <input type="text" pInputText id="code" [(ngModel)]="userModel.code" required autofocus
-                       />
-<!--                <small class="ng-dirty ng-invalid" *ngIf="submitted && !drawingsFolder.path">Name is required.</small>-->
-            </div>
-        </ng-template>
+    <div class="search-row">
+        <span class="p-input-icon-left">
+            <i class="pi pi-search"></i>
+            <input pInputText type="text" [(ngModel)]="groupSearch" (ngModelChange)="applyGroupSearch()" placeholder="Otsi rühmi või kasutajaid">
+        </span>
+    </div>
 
-        <ng-template pTemplate="footer">
-            <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text"
-                    (click)="dialogVisible = false"></button>
-            <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text"
-                    (click)="save()"></button>
-        </ng-template>
-    </p-dialog>
+    <div class="groups-section">
+        <h2>Rühmad</h2>
+        <div class="group-grid">
+            <div class="group-card" *ngFor="let group of filteredGroups">
+                <div class="group-card-header">
+                    <button type="button" class="group-title" (click)="openGroupUsers(group)">{{ group.name }}</button>
+                    <div class="group-actions">
+                        <button pButton pRipple type="button" icon="pi pi-pencil" class="p-button-text p-button-sm" [disabled]="!canManageAnyUser()" (click)="openEditGroupDialog(group)" title="Muuda rühma"></button>
+                        <button pButton pRipple type="button" icon="pi pi-trash" class="p-button-text p-button-sm p-button-danger" [disabled]="!canManageAnyUser()" (click)="confirmDeleteGroup(group)" title="Eemalda rühm"></button>
+                    </div>
+                </div>
 
+                <div class="member-list" *ngIf="group.involvementUsers.length; else emptyGroup">
+                    <button type="button" class="member-row" *ngFor="let membership of group.involvementUsers | slice:0:5" (click)="openGroupUsers(group)">
+                        <span class="avatar">{{ getUserInitials(membership.user) }}</span>
+                        <span>
+                            <span class="member-name">{{ getUserDisplayName(membership.user) }}</span>
+                            <span class="member-company">{{ membership.user?.company || 'Ettevõte puudub' }}</span>
+                        </span>
+                    </button>
+                    <span class="more-count" *ngIf="group.involvementUsers.length > 5">+{{ group.involvementUsers.length - 5 }} rohkem</span>
+                </div>
+
+                <ng-template #emptyGroup>
+                    <div class="empty-group">Tühi rühm</div>
+                </ng-template>
+
+                <button pButton pRipple type="button" icon="pi pi-plus" label="Lisa kasutaja" class="p-button-text add-member" [disabled]="!canManageAnyUser()" (click)="openAddMembership(group)"></button>
+            </div>
+        </div>
+    </div>
+
+    <div class="users-section">
+        <div class="section-header">
+            <h2>Kõik kasutajad</h2>
+            <button pButton pRipple type="button" icon="pi pi-user-plus" label="Lisa kasutaja" class="p-button-text" [disabled]="!canManageAnyUser()" (click)="openNewUserDialog()"></button>
+        </div>
+
+        <p-table [value]="users" [rows]="10" [paginator]="true" [rowHover]="true" [loading]="loading"
+                 [globalFilterFields]="['name','lastName','email','company','code']" #usersTable responsiveLayout="scroll">
+            <ng-template pTemplate="caption">
+                <span class="p-input-icon-left table-search">
+                    <i class="pi pi-search"></i>
+                    <input pInputText type="text" (input)="usersTable.filterGlobal($event.target.value, 'contains')" placeholder="Otsi kasutajaid">
+                </span>
+            </ng-template>
+            <ng-template pTemplate="header">
+                <tr>
+                    <th>Nimi</th>
+                    <th>Ettevõte</th>
+                    <th>E-post</th>
+                    <th>Isikukood</th>
+                    <th>Roll</th>
+                    <th></th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-user>
+                <tr>
+                    <td>{{ getUserDisplayName(user) }}</td>
+                    <td>{{ user.company }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.code }}</td>
+                    <td>{{ user.role }}</td>
+                    <td class="row-actions">
+                        <button pButton pRipple type="button" icon="pi pi-pencil" class="p-button-text p-button-sm" [disabled]="!canManageUser(user)" (click)="openEditUserDialog(user)" title="Muuda"></button>
+                        <button pButton pRipple type="button" icon="pi pi-trash" class="p-button-text p-button-sm p-button-danger" [disabled]="!canManageUser(user)" (click)="confirmDeleteUser(user)" title="Eemalda"></button>
+                    </td>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+                <tr>
+                    <td colspan="6">Kasutajaid ei leitud.</td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
 </div>
+
+<p-dialog [(visible)]="groupDialogVisible" [style]="{width: '420px'}" [modal]="true" [draggable]="false" styleClass="p-fluid"
+          [header]="groupModel.id ? 'Muuda rühma' : 'Lisa rühm'">
+    <ng-template pTemplate="content">
+        <div class="field">
+            <label for="groupName">Rühma nimi</label>
+            <input id="groupName" type="text" pInputText [(ngModel)]="groupModel.name" autofocus>
+        </div>
+    </ng-template>
+    <ng-template pTemplate="footer">
+        <button pButton pRipple type="button" label="Tühista" icon="pi pi-times" class="p-button-text" (click)="groupDialogVisible = false"></button>
+        <button pButton pRipple type="button" label="Salvesta" icon="pi pi-check" (click)="saveGroup()"></button>
+    </ng-template>
+</p-dialog>
+
+<p-dialog [(visible)]="userDialogVisible" [style]="{width: '520px'}" [modal]="true" [draggable]="false" styleClass="p-fluid"
+          [header]="userModel.id ? 'Muuda kasutajat' : 'Lisa kasutaja'">
+    <ng-template pTemplate="content">
+        <div class="formgrid grid">
+            <div class="field col-12 md:col-6">
+                <label for="name">Eesnimi</label>
+                <input id="name" type="text" pInputText [(ngModel)]="userModel.name" autofocus>
+            </div>
+            <div class="field col-12 md:col-6">
+                <label for="lastName">Perenimi</label>
+                <input id="lastName" type="text" pInputText [(ngModel)]="userModel.lastName">
+            </div>
+            <div class="field col-12">
+                <label for="company">Ettevõte</label>
+                <input id="company" type="text" pInputText [(ngModel)]="userModel.company">
+            </div>
+            <div class="field col-12">
+                <label for="email">E-post</label>
+                <input id="email" type="email" pInputText [(ngModel)]="userModel.email">
+            </div>
+            <div class="field col-12 md:col-6">
+                <label for="code">Isikukood</label>
+                <input id="code" type="text" pInputText [(ngModel)]="userModel.code">
+            </div>
+            <div class="field col-12 md:col-6">
+                <label for="role">Roll</label>
+                <p-dropdown id="role" [options]="assignableRoles" [(ngModel)]="userModel.role" placeholder="Vali roll"></p-dropdown>
+            </div>
+        </div>
+    </ng-template>
+    <ng-template pTemplate="footer">
+        <button pButton pRipple type="button" label="Tühista" icon="pi pi-times" class="p-button-text" (click)="userDialogVisible = false"></button>
+        <button pButton pRipple type="button" label="Salvesta" icon="pi pi-check" (click)="saveUser()"></button>
+    </ng-template>
+</p-dialog>
+
+<p-dialog [(visible)]="membershipDialogVisible" [style]="{width: '720px'}" [modal]="true" [draggable]="false"
+          [header]="selectedGroup?.name || 'Rühma kasutajad'">
+    <ng-template pTemplate="content">
+        <div class="membership-editor">
+            <div class="field">
+                <label for="selectedUser">Kasutaja</label>
+                <p-dropdown id="selectedUser" [options]="membershipUserOptions" [(ngModel)]="selectedUserId" optionLabel="name" optionValue="id"
+                            [filter]="true" filterBy="name,lastName,email,company" placeholder="Vali kasutaja">
+                    <ng-template pTemplate="selectedItem" let-user>
+                        <span *ngIf="user">{{ getUserDisplayName(user) }} - {{ user.company }}</span>
+                    </ng-template>
+                    <ng-template pTemplate="item" let-user>
+                        <div class="dropdown-user">
+                            <span>{{ getUserDisplayName(user) }}</span>
+                            <small>{{ user.company }}</small>
+                        </div>
+                    </ng-template>
+                </p-dropdown>
+            </div>
+            <div class="field">
+                <label for="rights">Õigused</label>
+                <input id="rights" type="text" pInputText [(ngModel)]="membershipModel.rights">
+            </div>
+            <button pButton pRipple type="button" icon="pi pi-plus" label="Lisa" (click)="saveMembership()"></button>
+        </div>
+
+        <p-table [value]="selectedGroup?.involvementUsers || []" [rows]="8" [paginator]="true" responsiveLayout="scroll">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th>Nimi</th>
+                    <th>Ettevõte</th>
+                    <th>E-post</th>
+                    <th>Õigused</th>
+                    <th></th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-membership>
+                <tr>
+                    <td>{{ getUserDisplayName(membership.user) }}</td>
+                    <td>{{ membership.user?.company }}</td>
+                    <td>{{ membership.user?.email }}</td>
+                    <td>{{ membership.rights }}</td>
+                    <td class="row-actions">
+                        <button pButton pRipple type="button" icon="pi pi-pencil" class="p-button-text p-button-sm" [disabled]="!canManageUser(membership.user)" (click)="editMembership(membership)" title="Muuda"></button>
+                        <button pButton pRipple type="button" icon="pi pi-trash" class="p-button-text p-button-sm p-button-danger" [disabled]="!canManageUser(membership.user)" (click)="removeMembership(membership)" title="Eemalda"></button>
+                    </td>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+                <tr>
+                    <td colspan="5">Rühmas ei ole kasutajaid.</td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </ng-template>
+</p-dialog>

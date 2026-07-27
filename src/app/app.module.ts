@@ -50,6 +50,7 @@ import {ToastModule} from "primeng/toast";
 import {AllAssignmentsComponent} from "./all-assignments/all-assignments.component";
 import {TypeComponent} from "./type/type.component";
 import {ConfirmDialogModule} from "primeng/confirmdialog";
+import {UsersComponent} from "./pages/services/user/users.component";
 
 @NgModule({
     declarations: [
@@ -66,6 +67,7 @@ import {ConfirmDialogModule} from "primeng/confirmdialog";
         ProjectComponent,
         TypeComponent,
         ImageDialogComponent,
+        UsersComponent,
         StartAddComponent
     ],
     imports: [

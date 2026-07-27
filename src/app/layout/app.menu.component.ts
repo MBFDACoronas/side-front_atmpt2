@@ -70,6 +70,11 @@ export class AppMenuComponent implements OnInit {
                         routerLink: ['/groups']
                     },
                     {
+                        label: 'Kasutajad',
+                        icon: 'pi pi-fw pi-users',
+                        routerLink: ['/kasutajad']
+                    },
+                    {
                         label: 'Lisa kontakt',
                         icon: 'pi pi-fw pi-home',
                         routerLink: ['/contact-add']
