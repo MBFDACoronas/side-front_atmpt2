@@ -3,13 +3,14 @@ import {Router} from '@angular/router';
 import {Subscription} from 'rxjs';
 import {Assignment} from '../assignment/assignment.model';
 import {AssignmentService} from '../assignment/assignment.service';
-import {AuthService, ROLE_USER} from '../auth/auth.service';
+import {AuthService, ROLE_ADMIN, ROLE_PEAADMIN, ROLE_USER} from '../auth/auth.service';
 import {TableColumn} from '../demo/shared/table-column.interface';
 import {Project} from '../project/project.model';
 
 const ASSIGNMENT_COLUMNS: TableColumn[] = [
     {name: 'Nr.', value: 'number', width: '110px', sort: true, filter: {type: 'contains'}},
     {name: 'Tüüp', value: 'type', width: '160px', sort: true, filter: {type: 'contains'}},
+    {name: 'Staatus', value: 'statusLabel', width: '140px', sort: true, filter: {type: 'contains'}},
     {name: 'Modifitseerimise kuupäev', value: 'updstamp', width: '180px', sort: true, filter: {type: 'contains'}},
     {name: 'Loomise kuupäev', value: 'created', width: '180px', sort: true, filter: {type: 'contains'}},
     {name: 'Tööpakett', value: 'workPackage', width: '180px', sort: true, filter: {type: 'contains'}},
@@ -42,6 +43,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     selectedProjectId: string;
     selectedProject: Project;
     isRegularUser = false;
+    canApproveAssignments = false;
     private authSubscription?: Subscription;
 
     constructor(
@@ -54,6 +56,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     ngOnInit(): void {
         this.authSubscription = this.authService.currentUser$.subscribe(user => {
             this.isRegularUser = user?.role === ROLE_USER;
+            this.canApproveAssignments = user?.role === ROLE_ADMIN || user?.role === ROLE_PEAADMIN;
             this.loadAssignments();
         });
     }
@@ -86,10 +89,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
             return;
         }
 
-        const assignment = {
-            project: this.selectedProject
-        } as Assignment;
-
+        const assignment = {project: this.selectedProject} as Assignment;
         this.assignmentService.saveAssignment(assignment).subscribe(res => {
             this.router.navigate(['/assignment/' + res.id]);
         });
@@ -101,6 +101,34 @@ export class DashboardComponent implements OnInit, OnDestroy {
         }
 
         this.router.navigate(['/assignment/' + this.selectedRow.id]);
+    }
+
+    markSelectedFinished(): void {
+        if (!this.isRegularUser || !this.selectedRow?.id) {
+            return;
+        }
+
+        this.assignmentService.markAssignmentFinished(this.selectedRow.id).subscribe(() => {
+            this.selectedRow = null;
+            this.loadAssignments();
+        });
+    }
+
+    approveSelectedAssignment(): void {
+        if (!this.canShowApproveButton || !this.selectedRow?.id) {
+            return;
+        }
+
+        this.assignmentService.approveAssignment(this.selectedRow.id).subscribe(saved => {
+            this.selectedRow.status = saved.status;
+            this.selectedRow.statusLabel = this.statusLabel(saved.status);
+            this.loadAssignments();
+        });
+    }
+
+    get canShowApproveButton(): boolean {
+        return this.canApproveAssignments
+            && (this.selectedRow?.status === 'WAITING_APPROVAL' || this.selectedRow?.status === 'FINISHED');
     }
 
     projectSelected(project: Project): void {
@@ -119,6 +147,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
             ...assignment,
             number: assignment.number || assignment.id,
             type: assignment.type || assignment.typeTemplate?.name || '',
+            statusLabel: this.statusLabel(assignment.status),
             responsible: assignment.responsible || this.userLabel(assignment.responsibleUser),
             building: assignment.project?.projectName || '',
             level: assignment.sector?.name || '',
@@ -128,5 +157,15 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     private userLabel(user: any): string {
         return user ? [user.name, user.lastName].filter(Boolean).join(' ') || user.email || user.code || '' : '';
+    }
+
+    private statusLabel(status: string): string {
+        if (status === 'APPROVED') {
+            return 'Kinnitatud';
+        }
+        if (status === 'WAITING_APPROVAL' || status === 'FINISHED') {
+            return 'Ootab kinnitamist';
+        }
+        return 'Lõpetamata';
     }
 }

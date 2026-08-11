@@ -7,9 +7,10 @@ export interface Assignment {
     id: string;
     drawing: Drawing[];
     number?: string;
-	name: string;
+    name: string;
     type?: string;
     typeTemplate?: Type;
+    status?: string;
     theme?: string;
     atv?: string;
     responsible?: string;

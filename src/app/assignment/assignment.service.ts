@@ -34,6 +34,14 @@ export class AssignmentService {
   saveAssignment(assignment: Assignment): Observable<Assignment>{
     return this.http.post<Assignment>("/api/assignment/save", assignment);
   }
+
+  markAssignmentFinished(id: string): Observable<Assignment>{
+    return this.http.post<Assignment>(`/api/assignment/${id}/finish`, {});
+  }
+
+  approveAssignment(id: string): Observable<Assignment>{
+    return this.http.post<Assignment>(`/api/assignment/${id}/approve`, {});
+  }
   deleteAssignment(id: string): Observable<void>{
     return this.http.delete<void>(`/api/assignment/${id}`);
   }

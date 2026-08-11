@@ -28,6 +28,7 @@ export class ImageDialogComponent implements OnInit, OnChanges, AfterViewInit {
     @Input() type: string;
     @Input() drawingId: string;
     @Input() drawing: Drawing;
+    @Input() readOnly = false;
     dialogueVisible: boolean = false;
 
     @Output() imageLoaded = new EventEmitter<{ width: number, height: number }>();
@@ -53,6 +54,7 @@ export class ImageDialogComponent implements OnInit, OnChanges, AfterViewInit {
     isSavingInteraction = false;
     private selectedInteractionSnapshot: DrawingInteraction | null = null;
     @Input() drawingInteractions!: DrawingInteraction[];
+    @Input() assignmentStatusById: {[id: string]: string} = {};
     @ViewChild('assignmentForm') assignmentForm?: StartAddComponent;
 
     constructor(
@@ -86,6 +88,9 @@ export class ImageDialogComponent implements OnInit, OnChanges, AfterViewInit {
             if (this.imageUrl) {
                 this.loadImage();
             }
+        }
+        if (changes['assignmentStatusById'] && this.loadedImage) {
+            this.redrawCanvas();
         }
     }
 
@@ -129,6 +134,15 @@ export class ImageDialogComponent implements OnInit, OnChanges, AfterViewInit {
         this.hasDragged = false;
         this.pointerStartX = event.clientX;
         this.pointerStartY = event.clientY;
+
+        if (this.readOnly) {
+            this.dragMode = 'pan';
+            this.dragStartOffsetX = this.offsetX;
+            this.dragStartOffsetY = this.offsetY;
+            (event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
+            return;
+        }
+
         const imagePoint = this.getImagePoint(event);
         const hitInteraction = this.findInteractionAtPoint(imagePoint.x, imagePoint.y);
 
@@ -189,7 +203,7 @@ export class ImageDialogComponent implements OnInit, OnChanges, AfterViewInit {
             return;
         }
 
-        if (this.dragMode === 'pan' && !this.hasDragged) {
+        if (this.dragMode === 'pan' && !this.hasDragged && !this.readOnly) {
             this.addMarkerFromPointer(event);
         }
 
@@ -284,6 +298,10 @@ export class ImageDialogComponent implements OnInit, OnChanges, AfterViewInit {
     }
 
     private addMarkerFromPointer(event: PointerEvent): void {
+        if (this.readOnly) {
+            return;
+        }
+
         if (!this.drawingInteractions) {
             this.drawingInteractions = [];
         }
@@ -309,6 +327,10 @@ export class ImageDialogComponent implements OnInit, OnChanges, AfterViewInit {
 
 
     drawCircle(x: number, y: number, index: number, addInteraction: boolean = true): void {
+        if (this.readOnly) {
+            return;
+        }
+
         if (addInteraction) {
             if (!this.drawingInteractions) {
                 this.drawingInteractions = [];
@@ -330,7 +352,7 @@ export class ImageDialogComponent implements OnInit, OnChanges, AfterViewInit {
 
         this.context.drawImage(this.loadedImage, 0, 0);
         (this.drawingInteractions || []).forEach(item => {
-            this.drawCircleMarker(item.coordX, item.coordY, item.drawingIndex, item.drawingType);
+            this.drawCircleMarker(item);
         });
     }
 
@@ -338,7 +360,11 @@ export class ImageDialogComponent implements OnInit, OnChanges, AfterViewInit {
         this.redrawCanvas();
     }
 
-    private drawCircleMarker(x: number, y: number, index: number, drawingType: string = this.type): void {
+    private drawCircleMarker(interaction: DrawingInteraction): void {
+        const x = interaction.coordX;
+        const y = interaction.coordY;
+        const index = interaction.drawingIndex;
+        const drawingType = interaction.drawingType || this.type;
         const text = `${drawingType || this.type}-${index}`;
         this.context.font = '12px bold Arial';
         const textWidth = this.context.measureText(text).width;
@@ -358,7 +384,7 @@ export class ImageDialogComponent implements OnInit, OnChanges, AfterViewInit {
         this.context.quadraticCurveTo(x - rectWidth / 2, y + rectHeight / 2, x - rectWidth / 2, y + rectHeight / 2 - radius);
         this.context.lineTo(x - rectWidth / 2, y - rectHeight / 2 + radius);
         this.context.quadraticCurveTo(x - rectWidth / 2, y - rectHeight / 2, x - rectWidth / 2 + radius, y - rectHeight / 2);
-        this.context.fillStyle = '#90EE90';
+        this.context.fillStyle = this.getMarkerColor(interaction);
         this.context.fill();
         this.context.closePath();
 
@@ -374,6 +400,23 @@ export class ImageDialogComponent implements OnInit, OnChanges, AfterViewInit {
             .filter(item => item !== exclude && (item.drawingType || this.type) === drawingType)
             .reduce((max, item) => Math.max(max, item.drawingIndex || 0), 0);
         return maxIndex + 1;
+    }
+
+    private getMarkerColor(interaction: DrawingInteraction): string {
+        const assignmentId = this.getInteractionAssignmentId(interaction);
+        const status = assignmentId ? this.assignmentStatusById?.[assignmentId] : null;
+        if (status === 'APPROVED') {
+            return '#22c55e';
+        }
+        if (status === 'WAITING_APPROVAL' || status === 'FINISHED') {
+            return '#f97316';
+        }
+        return '#ef4444';
+    }
+
+    private getInteractionAssignmentId(interaction: DrawingInteraction): string {
+        const assignment = interaction.assignment as any;
+        return typeof assignment === 'string' ? assignment : assignment?.id;
     }
 
     private createInteraction(x: number, y: number, index: number): DrawingInteraction {
@@ -488,6 +531,12 @@ export class ImageDialogComponent implements OnInit, OnChanges, AfterViewInit {
     }
 
     saveAssignmentDetails() {
+        if (this.readOnly) {
+            this.dialogueVisible = false;
+            this.clearInteractionSelection();
+            return;
+        }
+
         if (!this.selectedInteraction) {
             this.dialogueVisible = false;
             return;
@@ -508,6 +557,7 @@ export class ImageDialogComponent implements OnInit, OnChanges, AfterViewInit {
             this.assignmentService.saveAssignment(assignment).subscribe({
                 next: savedAssignment => {
                     interaction.assignment = savedAssignment.id;
+                    this.assignmentStatusById[savedAssignment.id] = savedAssignment.status || 'UNFINISHED';
                     this.applyAssignmentNumberToInteraction(savedAssignment.number, interaction);
                     this.saveInteractionWithDrawing(interaction);
                 },

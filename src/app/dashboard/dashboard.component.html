@@ -14,6 +14,23 @@
         (click)="modifyAssignment()"
         label="Muuda">
     </button>
+    <button
+        *ngIf="isRegularUser"
+        pButton
+        pRipple
+        class="p-button-success ml-2"
+        [disabled]="!selectedRow"
+        (click)="markSelectedFinished()"
+        label="Märgi lõpetatuks">
+    </button>
+    <button
+        *ngIf="canShowApproveButton"
+        pButton
+        pRipple
+        class="p-button-success ml-2"
+        (click)="approveSelectedAssignment()"
+        label="Kinnita">
+    </button>
 
     <app-filtered-table
         [fluid]="true"

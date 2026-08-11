@@ -1,0 +1,268 @@
+<div class="project-settings">
+    <aside class="settings-nav">
+        <div class="back-link">
+            <i class="pi pi-arrow-left"></i>
+            <span>Tagasi projekti juurde</span>
+        </div>
+        <h2>Satted</h2>
+        <a routerLink="/kasutajad">
+            <i class="pi pi-users"></i>
+            <span>Kasutajad</span>
+        </a>
+        <a class="active" routerLink="/projekti-seadistamine">
+            <i class="pi pi-home"></i>
+            <span>Projekti seadistamine</span>
+        </a>
+    </aside>
+
+    <main class="settings-content">
+        <div class="page-header">
+            <div>
+                <h1>Projekti konfiguratsioon</h1>
+                <p>Projekt, aadressid, sektorid ja projekti administraatorid.</p>
+            </div>
+            <button
+                pButton
+                pRipple
+                icon="pi pi-plus"
+                label="Uus projekt"
+                [disabled]="!canManageProjects"
+                (click)="createNewProject()">
+            </button>
+        </div>
+
+        <div *ngIf="!canManageSelectedProject" class="permission-note">
+            Peaadministraator saab projekte luua ja administraatoreid maarata. Administraator saab muuta ainult talle maaratud projekti aadresse, sektoreid ja tavakasutajaid.
+        </div>
+
+        <div class="setup-layout">
+            <section class="panel project-list">
+                <div class="panel-header">
+                    <h3>Projektid</h3>
+                    <span>{{filteredProjects.length}}</span>
+                </div>
+                <span class="p-input-icon-left search">
+                    <i class="pi pi-search"></i>
+                    <input
+                        pInputText
+                        type="text"
+                        placeholder="Otsi projekti"
+                        [(ngModel)]="searchTerm"
+                        (ngModelChange)="filterProjects()">
+                </span>
+
+                <div class="project-items" [class.loading]="loading">
+                    <button
+                        type="button"
+                        class="project-item"
+                        *ngFor="let project of filteredProjects"
+                        [class.selected]="project.id === selectedProject?.id"
+                        (click)="selectProject(project)">
+                        <span class="project-name">{{project.projectName || 'Nimetu projekt'}}</span>
+                        <span class="project-meta">
+                            {{project.addresses?.length || 0}} aadressi · {{project.administrators?.length || 0}} admin
+                        </span>
+                    </button>
+                </div>
+            </section>
+
+            <section class="panel project-detail" *ngIf="selectedProject; else emptyState">
+                <div class="detail-toolbar">
+                    <h3>Projekti andmed</h3>
+                    <div class="actions">
+                        <button
+                            pButton
+                            pRipple
+                            icon="pi pi-trash"
+                            class="p-button-danger p-button-outlined"
+                            [disabled]="!selectedProject.id || !canManageProjects"
+                            (click)="deleteSelectedProject()">
+                        </button>
+                        <button
+                            pButton
+                            pRipple
+                            icon="pi pi-save"
+                            label="Salvesta"
+                            [loading]="saving"
+                            [disabled]="!canManageSelectedProject"
+                            (click)="saveProject()">
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-grid">
+                    <div class="field">
+                        <label for="projectName">Projekti nimi</label>
+                        <input
+                            id="projectName"
+                            pInputText
+                            type="text"
+                            [(ngModel)]="selectedProject.projectName"
+                            [disabled]="!canManageProjects">
+                    </div>
+                    <div class="field">
+                        <label for="projectAdmins">Administraatorid</label>
+                        <p-multiSelect
+                            inputId="projectAdmins"
+                            [options]="adminOptions"
+                            optionLabel="name"
+                            optionValue="id"
+                            dataKey="id"
+                            display="chip"
+                            placeholder="Vali administraatorid"
+                            [(ngModel)]="selectedAdministratorIds"
+                            [disabled]="!canManageProjects">
+                            <ng-template let-user pTemplate="item">
+                                <div>{{userLabel(user)}} <span class="muted" *ngIf="user.company">· {{user.company}}</span></div>
+                            </ng-template>
+                        </p-multiSelect>
+                    </div>
+                    <div class="field">
+                        <label for="projectUsers">Tavakasutajad</label>
+                        <p-multiSelect
+                            inputId="projectUsers"
+                            [options]="userOptions"
+                            optionLabel="name"
+                            optionValue="id"
+                            dataKey="id"
+                            display="chip"
+                            placeholder="Vali tavakasutajad"
+                            [(ngModel)]="selectedUserIds"
+                            [disabled]="!canAssignUsers">
+                            <ng-template let-user pTemplate="item">
+                                <div>{{userLabel(user)}} <span class="muted" *ngIf="user.company">· {{user.company}}</span></div>
+                            </ng-template>
+                        </p-multiSelect>
+                    </div>
+                    <div class="field checkbox-field">
+                        <p-checkbox
+                            inputId="projectValid"
+                            [(ngModel)]="selectedProject.valid"
+                            [binary]="true"
+                            [disabled]="!canManageProjects">
+                        </p-checkbox>
+                        <label for="projectValid">Aktiivne projekt</label>
+                    </div>
+                </div>
+
+                <div class="hierarchy">
+                    <div class="hierarchy-column">
+                        <div class="column-header">
+                            <h4>Aadressid</h4>
+                            <button
+                                pButton
+                                pRipple
+                                icon="pi pi-plus"
+                                class="p-button-sm"
+                                [disabled]="!canManageSelectedProject"
+                                (click)="openAddressDialog()">
+                            </button>
+                        </div>
+                        <button
+                            type="button"
+                            class="row-item"
+                            *ngFor="let address of selectedProject.addresses"
+                            [class.selected]="address === selectedAddress"
+                            (click)="selectedAddress = address">
+                            <span>
+                                <strong>{{address.name}}</strong>
+                                <small>{{address.address}}</small>
+                            </span>
+                            <span class="row-actions">
+                                <i *ngIf="canManageSelectedProject" class="pi pi-pencil" (click)="openAddressDialog(address); $event.stopPropagation()"></i>
+                                <i *ngIf="canManageSelectedProject" class="pi pi-trash" (click)="removeAddress(address); $event.stopPropagation()"></i>
+                            </span>
+                        </button>
+                    </div>
+
+                    <div class="hierarchy-column">
+                        <div class="column-header">
+                            <h4>Sektorid</h4>
+                            <button
+                                pButton
+                                pRipple
+                                icon="pi pi-plus"
+                                class="p-button-sm"
+                                [disabled]="!selectedAddress || !canManageSelectedProject"
+                                (click)="openSectorDialog()">
+                            </button>
+                        </div>
+                        <ng-container *ngIf="selectedAddress; else noAddress">
+                            <div class="row-item sector-row" *ngFor="let sector of selectedAddress.sectors">
+                                <span>
+                                    <strong>{{sector.name}}</strong>
+                                    <small>{{sector.code || 'Kood puudub'}} · {{sector.valid ? 'Aktiivne' : 'Mitteaktiivne'}}</small>
+                                </span>
+                                <span class="row-actions">
+                                    <i *ngIf="canManageSelectedProject" class="pi pi-pencil" (click)="openSectorDialog(sector)"></i>
+                                    <i *ngIf="canManageSelectedProject" class="pi pi-trash" (click)="removeSector(sector)"></i>
+                                </span>
+                            </div>
+                        </ng-container>
+                        <ng-template #noAddress>
+                            <div class="empty-inline">Vali aadress.</div>
+                        </ng-template>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+</div>
+
+<ng-template #emptyState>
+    <section class="panel empty-state">
+        <i class="pi pi-home"></i>
+        <h3>Vali projekt</h3>
+        <p>Vali olemasolev projekt voi loo uus ehitusobjekt.</p>
+    </section>
+</ng-template>
+
+<p-dialog
+    header="Aadress"
+    [(visible)]="addressDialogVisible"
+    [modal]="true"
+    [draggable]="false"
+    [style]="{width: '520px'}"
+    styleClass="p-fluid">
+    <div class="dialog-form">
+        <div class="field">
+            <label for="addressName">Nimetus</label>
+            <input id="addressName" pInputText type="text" [(ngModel)]="addressDraft.name">
+        </div>
+        <div class="field">
+            <label for="addressValue">Aadress</label>
+            <input id="addressValue" pInputText type="text" [(ngModel)]="addressDraft.address">
+        </div>
+    </div>
+    <ng-template pTemplate="footer">
+        <button pButton pRipple label="Tuhista" icon="pi pi-times" class="p-button-text" (click)="addressDialogVisible = false"></button>
+        <button pButton pRipple label="Salvesta" icon="pi pi-check" (click)="saveAddress()"></button>
+    </ng-template>
+</p-dialog>
+
+<p-dialog
+    header="Sektor"
+    [(visible)]="sectorDialogVisible"
+    [modal]="true"
+    [draggable]="false"
+    [style]="{width: '520px'}"
+    styleClass="p-fluid">
+    <div class="dialog-form">
+        <div class="field">
+            <label for="sectorName">Nimetus</label>
+            <input id="sectorName" pInputText type="text" [(ngModel)]="sectorDraft.name">
+        </div>
+        <div class="field">
+            <label for="sectorCode">Kood</label>
+            <input id="sectorCode" pInputText type="text" [(ngModel)]="sectorDraft.code">
+        </div>
+        <div class="field checkbox-field">
+            <p-checkbox inputId="sectorValid" [(ngModel)]="sectorDraft.valid" [binary]="true"></p-checkbox>
+            <label for="sectorValid">Aktiivne sektor</label>
+        </div>
+    </div>
+    <ng-template pTemplate="footer">
+        <button pButton pRipple label="Tuhista" icon="pi pi-times" class="p-button-text" (click)="sectorDialogVisible = false"></button>
+        <button pButton pRipple label="Salvesta" icon="pi pi-check" (click)="saveSector()"></button>
+    </ng-template>
+</p-dialog>

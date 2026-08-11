@@ -1,0 +1,32 @@
+.project-settings{min-height:calc(100vh - 8rem);display:grid;grid-template-columns:250px 1fr;background:#eef3f1;margin:-1rem}
+.settings-nav{background:#fff;border-right:1px solid #cfd8d6;padding:1rem .75rem}
+.settings-nav h2{margin:.75rem}
+.settings-nav a,.back-link{display:flex;align-items:center;gap:.65rem;padding:.7rem .75rem;text-decoration:none}
+.settings-nav a.active{background:#dde5e3;font-weight:600}
+.back-link{font-size:.85rem}
+.settings-content{padding:1.5rem;min-width:0}
+.page-header,.detail-toolbar,.panel-header,.column-header,.row-item{display:flex;align-items:center;justify-content:space-between;gap:1rem}
+.page-header{margin-bottom:1rem}
+.page-header h1{margin:0 0 .25rem;font-size:1.55rem}
+.project-meta,.row-item small{color:#687a7c;font-size:.9rem}
+.permission-note{padding:.8rem 1rem;margin-bottom:1rem}
+.setup-layout{display:grid;grid-template-columns:310px 1fr;gap:1rem}
+.panel,.hierarchy-column{background:#fff;border:1px solid #dde5e3;border-radius:6px;padding:1rem}
+.panel h3,.panel h4{margin:0}
+.search{display:block;margin:.75rem 0}
+.search input,.project-item,.row-item{width:100%}
+.project-items{display:grid;gap:.5rem;max-height:60vh;overflow:auto}
+.project-item,.row-item{border:1px solid #d7e0de;background:#fff;padding:.75rem;text-align:left}
+.project-item.selected,.row-item.selected{border-color:#65a30d;background:#f0f9e8}
+.project-name,.project-meta,.row-item strong,.row-item small{display:block}
+.form-grid,.hierarchy{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem;margin:1rem 0}
+.field label{display:block;margin-bottom:.4rem;font-weight:600}
+.checkbox-field{display:flex;align-items:center;gap:.55rem;min-height:2.75rem}
+.checkbox-field label{margin:0}
+.hierarchy-column{min-height:260px}
+.column-header{margin-bottom:.75rem}
+.row-item{margin-bottom:.5rem}
+.row-actions{display:inline-flex;gap:.75rem}
+.row-actions i{cursor:pointer}
+.dialog-form{display:grid;gap:1rem}
+@media(max-width:1100px){.project-settings,.setup-layout,.hierarchy,.form-grid{grid-template-columns:1fr}}

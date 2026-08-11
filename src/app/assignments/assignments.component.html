@@ -1,94 +1,72 @@
 <div *ngIf="assignment && assignment.project" class="card">
-<h1>{{assignment.project.projectName}}</h1>
+    <h1>{{assignment.project.projectName}}</h1>
 </div>
 
-
-
 <div class="card">
-
     <span class="text-900 text-xl font-bold mb-4 block">Ülesanne</span>
-    <div class="field mb-4 col-12 md:col-6">
-        <label for="name" class="font-medium text-900">Nimetus</label>
-        <input id="name" type="text" pInputText [(ngModel)]="assignment.name">
+
+    <div class="grid formgrid p-fluid">
+        <div class="field mb-4 col-12 md:col-6">
+            <label class="font-medium text-900">Staatus</label>
+            <div class="text-900">{{statusLabel}}</div>
+        </div>
+
+        <div class="field mb-4 col-12 md:col-6">
+            <label for="name" class="font-medium text-900">Nimetus</label>
+            <input id="name" type="text" pInputText [(ngModel)]="assignment.name" [disabled]="isRegularUser">
+        </div>
+
+        <div class="field mb-4 col-12 md:col-6">
+            <h5>Tüüp</h5>
+            <p-dropdown
+                inputId="dropdown"
+                id="dropdown"
+                [autoDisplayFirst]="false"
+                [options]="typeList"
+                [disabled]="isRegularUser"
+                [(ngModel)]="selectedType"
+                (onChange)="typeChange($event)"
+                optionLabel="name">
+            </p-dropdown>
+        </div>
+
+        <div class="field mb-4 col-12 md:col-6">
+            <h5>Aadress</h5>
+            <p-dropdown
+                inputId="assignmentAddress"
+                [autoDisplayFirst]="false"
+                [options]="addressOptions"
+                [disabled]="isRegularUser"
+                [(ngModel)]="selectedAddress"
+                (onChange)="onAddressChange($event)"
+                optionLabel="name"
+                placeholder="Vali aadress">
+            </p-dropdown>
+        </div>
+
+        <div class="field mb-4 col-12 md:col-6">
+            <h5>Sektor</h5>
+            <p-dropdown
+                inputId="assignmentSector"
+                [autoDisplayFirst]="false"
+                [options]="sectorOptions"
+                [disabled]="isRegularUser"
+                [(ngModel)]="selectedSector"
+                (onChange)="onSectorChange($event)"
+                optionLabel="name"
+                placeholder="Vali sektor">
+            </p-dropdown>
+        </div>
+
+        <div class="field mb-4 col-12">
+            <h5>Kirjeldus</h5>
+            <textarea rows="6" pInputTextarea [(ngModel)]="assignment.description" [disabled]="isRegularUser"></textarea>
+        </div>
     </div>
-
-
-    <div class="field mb-4 col-12">
-        <h5>Tüüp</h5>
-<!--        <p-autoComplete id="vastutav" [(ngModel)]="selectedVastutavad" [suggestions]="filteredVastutavad"-->
-<!--                        (completeMethod)="filteredVastutav($event)" field="name" [dropdown]="true">-->
-<!--        </p-autoComplete>-->
-
-        <p-dropdown
-            inputId="dropdown"
-            id="dropdown"
-            [autoDisplayFirst]="false"
-            [options]="typeList"
-            [(ngModel)]="selectedType"
-            (onChange)="typeChange($event)"
-            [optionLabel]="'name'"
-        ></p-dropdown>
-
-    </div>
-    <div class="field mb-4 col-12 md:col-6">
-        <h5>Aadress</h5>
-        <p-dropdown
-            inputId="assignmentAddress"
-            [autoDisplayFirst]="false"
-            [options]="addressOptions"
-            [(ngModel)]="selectedAddress"
-            (onChange)="onAddressChange($event)"
-            optionLabel="name"
-            placeholder="Vali aadress">
-        </p-dropdown>
-    </div>
-    <div class="field mb-4 col-12 md:col-6">
-        <h5>Sektor</h5>
-        <p-dropdown
-            inputId="assignmentSector"
-            [autoDisplayFirst]="false"
-            [options]="sectorOptions"
-            [(ngModel)]="selectedSector"
-            (onChange)="onSectorChange($event)"
-            optionLabel="name"
-            placeholder="Vali sektor">
-        </p-dropdown>
-    </div>
-<!--    <div class="field mb-4 col-12">-->
-<!--        <h5>Teema</h5>-->
-<!--        <p-autoComplete id="teema" [(ngModel)]="selectedVastutavad" [suggestions]="filteredVastutavad"-->
-<!--                        (completeMethod)="filteredVastutav($event)" field="name" [dropdown]="true">-->
-<!--        </p-autoComplete>-->
-<!--    </div>-->
-
-<!--    <div class="field mb-4 col-12">-->
-<!--        <h5>Asukoht</h5>-->
-<!--        <p-autoComplete id="asukoht" [(ngModel)]="selectedVastutavad" [suggestions]="filteredVastutavad"-->
-<!--                        (completeMethod)="filteredVastutav($event)" field="name" [dropdown]="true">-->
-<!--        </p-autoComplete>-->
-<!--    </div>-->
-
-<!--    <div class="field mb-4 col-12">-->
-<!--        <h5>ATV</h5>-->
-<!--        <input id="atv" type="text" pInputText>-->
-<!--    </div>-->
-
-    <div class="field mb-4 col-12">
-        <h5>Kirjeldus1</h5>
-        <textarea rows="6" pInputTextarea placeholder="Your comment"></textarea>
-    </div>
-
 
     <div class="grid">
-
-
-<!--        <div class="col-12 lg:col-2">-->
-<!--            <div class="text-900 font-medium text-xl mb-3">Pealkiri placeholder</div>-->
-<!--            <p class="m-0 p-0 text-600 line-height-3 mr-3">Info placeholder</p>-->
-<!--        </div>-->
         <div class="col-12 lg:col-10">
-
-            <div class="field mb-4 col-12">
+            <div *ngIf="!isRegularUser" class="field mb-4 col-12">
                 <div class="button-container">
                     <div class="trigger" (click)="fileInput.click()">
                         <i class="pi pi-upload"></i>
@@ -100,98 +78,44 @@
 
             <div class="image-list">
                 <div *ngFor="let drawing of drawingsList" class="image-item">
-                    <!-- Add a container div for styling -->
                     <div class="image-container">
                         <app-image-dialog
                             [drawing]="drawing"
                             [drawingInteractions]="drawing.drawingInteraction"
                             [drawingId]="drawing.id"
                             [imageUrl]="drawing.imageUrl"
+                            [assignmentStatusById]="assignmentStatusById"
+                            [readOnly]="isRegularUser"
                             [type]="'DF'">
                         </app-image-dialog>
                     </div>
                 </div>
             </div>
+        </div>
     </div>
 
-</div>
     <button
+        *ngIf="!isRegularUser"
         pButton
         pRipple
         class="p-button-secondary"
         (click)="saveAssignment()"
         label="Salvesta">
     </button>
-<!--    <button-->
-<!--        pButton-->
-<!--        pRipple-->
-<!--        class="p-button-secondary"-->
-<!--        (click)="saveAssignment()"-->
-<!--        label="TEST">-->
-<!--    </button>-->
-<!--<p-dialog #cameraDialog header="Capture Image" [(visible)]="displayCameraDialog" [modal]="true" [style]="{width: '80vw', height: '80vh'}" (onShow)="onDialogShow(cameraDialog)">-->
-<!--    <app-camera-capture></app-camera-capture>-->
-<!--</p-dialog>-->
-
-<!--<p-dialog #imageDialog header="View Image" [(visible)]="displayImageDialog" [modal]="true" [style]="{width: dynamicWidth, height: dynamicHeight}" (onHide)="closeImageDialog()">-->
-<!--    <app-image-dialog [imageUrl]="selectedImage" [type]="'DF'" (imageLoaded)="onImageLoaded($event)"></app-image-dialog>-->
-<!--</p-dialog>-->
+    <button
+        *ngIf="canMarkFinished"
+        pButton
+        pRipple
+        class="p-button-success ml-2"
+        (click)="markFinished()"
+        label="Märgi lõpetatuks">
+    </button>
+    <button
+        *ngIf="canApproveAssignment"
+        pButton
+        pRipple
+        class="p-button-success ml-2"
+        (click)="approveAssignment()"
+        label="Kinnita">
+    </button>
 </div>
-
-<!--<p-dialog [(visible)]="dialogueVisible"-->
-<!--          (visibleChange)="onVisibleChange($event)"-->
-<!--          [style]="{width: '800px'}"-->
-<!--          [modal]="true"-->
-<!--          [draggable]="false"-->
-<!--          styleClass="p-fluid"-->
-<!--&gt;-->
-<!--    <ng-template pTemplate="header">-->
-<!--        <h2>Salvestamine</h2>-->
-<!--    </ng-template>-->
-<!--    <ng-template pTemplate="content">-->
-<!--        <div class="formgrid grid">-->
-
-<!--            <app-start-add></app-start-add>-->
-
-<!--&lt;!&ndash;            <div class="field col-12">&ndash;&gt;-->
-<!--&lt;!&ndash;                <label for="projectName">TODO</label>&ndash;&gt;-->
-<!--&lt;!&ndash;                <input pInputText&ndash;&gt;-->
-<!--&lt;!&ndash;                       id="projectName"&ndash;&gt;-->
-<!--&lt;!&ndash;                       [(ngModel)]="project.projectName"&ndash;&gt;-->
-<!--&lt;!&ndash;                       type="text"&ndash;&gt;-->
-<!--&lt;!&ndash;                       [required]="true"&ndash;&gt;-->
-<!--&lt;!&ndash;                       name="projectName">&ndash;&gt;-->
-<!--&lt;!&ndash;            </div>&ndash;&gt;-->
-<!--&lt;!&ndash;            <div class="field-radiobutton col-12">&ndash;&gt;-->
-<!--&lt;!&ndash;                <label for="valid">TODO</label>&ndash;&gt;-->
-<!--&lt;!&ndash;                <p-checkbox id="valid"&ndash;&gt;-->
-<!--&lt;!&ndash;                            (click)="setActive(project.valid)"&ndash;&gt;-->
-<!--&lt;!&ndash;                            [value]="project.valid"&ndash;&gt;-->
-<!--&lt;!&ndash;                            [(ngModel)]="project.valid"&ndash;&gt;-->
-<!--&lt;!&ndash;                            [binary]="true"></p-checkbox>&ndash;&gt;-->
-<!--&lt;!&ndash;            </div>&ndash;&gt;-->
-
-
-<!--        </div>-->
-<!--    </ng-template>-->
-<!--    <ng-template pTemplate="footer">-->
-<!--        <button-->
-<!--            pButton-->
-<!--            pRipple-->
-<!--            label="Tühista"-->
-<!--            icon="pi pi-times"-->
-<!--            id="cancel-btn"-->
-<!--            class="p-button p-button-danger"-->
-<!--            (click)="dialogueVisible = false"-->
-<!--        ></button>-->
-<!--        <button-->
-<!--            pButton-->
-<!--            pRipple-->
-<!--            [label]="'Salvesta'"-->
-<!--            id="save-btn"-->
-<!--            icon="pi pi-check"-->
-<!--            class="p-button p-button-success"-->
-<!--            (click)="saveAssignmentDetails()"-->
-<!--        ></button>-->
-<!--    </ng-template>-->
-<!--</p-dialog>-->
